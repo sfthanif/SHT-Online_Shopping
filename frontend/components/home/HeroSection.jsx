@@ -2,12 +2,12 @@ export default function HeroSection() {
   return (
     <section className="site-hero">
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        <div className="grid items-center grid-cols-1 gap-8 md:grid-cols-2">
           <div>
-            <h1 className="text-4xl font-bold mb-4">
+            <h1 className="mb-4 text-4xl font-bold">
               Premium Fashion. Local Prices.
             </h1>
-            <p className="text-gray-700 mb-6">
+            <p className="mb-6 text-gray-700">
               Discover curated collections for men, women and children. Fast
               shipping across Bangladesh.
             </p>
@@ -18,13 +18,13 @@ export default function HeroSection() {
               >
                 Shop Now
               </a>
-              <a href="#" className="border px-5 py-3 rounded-lg">
+              <a href="#" className="px-5 py-3 border rounded-lg">
                 Explore
               </a>
             </div>
           </div>
           <div>
-            <div className="bg-white h-64 rounded-lg shadow-md flex items-center justify-center">
+            <div className="flex items-center justify-center h-64 bg-white rounded-lg shadow-md">
               Hero Image
             </div>
           </div>

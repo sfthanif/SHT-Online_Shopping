@@ -4,22 +4,34 @@ export default function Navbar() {
   return (
     <header className="bg-white shadow-sm">
       <div className="container flex items-center justify-between py-4">
-        <Link href="/">
-          <a className="text-2xl font-bold text-[var(--primary)]">SHT</a>
+        <Link href="/" className="text-2xl font-bold text-[var(--primary)]">
+          SHT
         </Link>
 
         <nav className="hidden md:flex gap-6 items-center">
-          <Link href="/shop">
-            <a className="text-gray-700 hover:text-[var(--primary)]">Shop</a>
+          <Link
+            href="/shop"
+            className="text-gray-700 hover:text-[var(--primary)]"
+          >
+            Shop
           </Link>
-          <Link href="/categories/men">
-            <a className="text-gray-700 hover:text-[var(--primary)]">Men</a>
+          <Link
+            href="/categories/men"
+            className="text-gray-700 hover:text-[var(--primary)]"
+          >
+            Men
           </Link>
-          <Link href="/categories/women">
-            <a className="text-gray-700 hover:text-[var(--primary)]">Women</a>
+          <Link
+            href="/categories/women"
+            className="text-gray-700 hover:text-[var(--primary)]"
+          >
+            Women
           </Link>
-          <Link href="/cart">
-            <a className="text-gray-700 hover:text-[var(--primary)]">Cart</a>
+          <Link
+            href="/cart"
+            className="text-gray-700 hover:text-[var(--primary)]"
+          >
+            Cart
           </Link>
         </nav>
 
