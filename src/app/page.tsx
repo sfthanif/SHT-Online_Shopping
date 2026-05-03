@@ -1,265 +1,363 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { ShieldCheck, Sparkles, Truck, Undo2 } from "lucide-react";
+import {
+  ShieldCheck,
+  Sparkles,
+  Truck,
+  Undo2,
+  ChevronRight,
+} from "lucide-react";
 
 import { brand } from "@/lib/constants";
 import { products, testimonials } from "@/lib/data";
 import { formatCurrency } from "@/lib/utils";
 
-import { Carousel } from "@/components/ui/carousel";
-
 export default function Home() {
-  const arrivals = products.slice(0, 8);
   const bestsellers = products
     .filter((product) => product.isBestSeller)
-    .slice(0, 6);
+    .slice(0, 4);
+  const arrivals = products.slice(0, 4);
 
   return (
-    <main className="pb-12">
-      <section className="relative min-h-[90vh] overflow-hidden">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 h-full w-full object-cover"
-          poster="https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=1600&q=80"
-        >
-          <source
-            src="https://cdn.coverr.co/videos/coverr-woman-walking-in-style-1176/1080p.mp4"
-            type="video/mp4"
-          />
-        </video>
-        <div className="absolute inset-0 bg-gradient-to-r from-charcoal/55 to-rose/35" />
+    <main className="pb-20">
+      {/* Top Promotional Banner */}
+      <div className="w-full border-b border-black/10 bg-black px-4 py-2 text-center lg:px-8">
+        <p className="font-ui text-[11px] uppercase tracking-[0.2em] text-white">
+          🎁 Friends & Family Sale · Extra 30% OFF with Code FRIENDS30 · Free
+          Shipping Over $200
+        </p>
+      </div>
 
-        <div className="relative mx-auto flex min-h-[90vh] max-w-7xl items-center px-4 lg:px-8">
-          <div className="max-w-3xl text-cream">
-            <p className="ui-label !text-cream/80">
-              Luxury Handcrafted Collection
-            </p>
-            <h1 className="mt-4 font-heading text-5xl leading-tight md:text-7xl">
-              {brand.heroTitle}
-            </h1>
-            <p className="mt-5 max-w-2xl font-body text-2xl text-cream/90">
-              ROSEQUI luxury handbags blend heritage craftsmanship with modern
-              feminine silhouettes.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+      {/* Hero Section with Split Layout */}
+      <section className="mx-auto max-w-7xl px-4 lg:px-8">
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1.5fr_1fr] lg:gap-6">
+          {/* Main Hero */}
+          <div className="relative h-96 overflow-hidden rounded-2xl lg:h-auto lg:min-h-[500px]">
+            <Image
+              src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=900&q=80"
+              alt="Featured Collection"
+              fill
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/60 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-6 text-cream">
+              <p className="font-ui text-[11px] uppercase tracking-[0.2em]">
+                Limited Availability
+              </p>
+              <h2 className="mt-2 font-heading text-4xl">
+                Signature Collection
+              </h2>
               <Link
                 href="/products"
-                className="rounded-full bg-gold-gradient bg-[length:220%_100%] px-7 py-3 font-ui text-xs uppercase tracking-[0.2em] text-charcoal hover:animate-shimmer"
+                className="mt-4 inline-flex items-center gap-2 font-ui text-xs uppercase tracking-[0.14em] hover:gap-3 transition"
               >
-                Shop Collection
+                Shop Now <ChevronRight className="h-4 w-4" />
               </Link>
-              <Link
-                href="/products?category=Limited%20Edition"
-                className="rounded-full border border-cream/70 px-7 py-3 font-ui text-xs uppercase tracking-[0.2em] text-cream"
-              >
-                Limited Edition
-              </Link>
+            </div>
+          </div>
+
+          {/* Secondary Hero Grid */}
+          <div className="grid gap-4">
+            <div className="relative h-36 overflow-hidden rounded-2xl">
+              <Image
+                src="https://images.unsplash.com/photo-1606522754091-a3bbf9ad4cb3?auto=format&fit=crop&w=600&q=80"
+                alt="New Arrivals"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-charcoal/70 flex items-end p-4">
+                <div className="text-cream">
+                  <p className="font-ui text-[10px] uppercase tracking-[0.18em] opacity-80">
+                    This Week
+                  </p>
+                  <p className="font-heading text-2xl">New Arrivals</p>
+                </div>
+              </div>
+            </div>
+            <div className="relative h-36 overflow-hidden rounded-2xl">
+              <Image
+                src="https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=600&q=80"
+                alt="Sale"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-charcoal/70 flex items-end p-4">
+                <div className="text-cream">
+                  <p className="font-ui text-[10px] uppercase tracking-[0.18em] text-gold">
+                    Up to 40% OFF
+                  </p>
+                  <p className="font-heading text-2xl">Spring Collection</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto mt-20 max-w-7xl px-4 lg:px-8">
-        <h2 className="section-title">New Arrivals</h2>
-        <div className="mt-8 flex snap-x gap-5 overflow-x-auto pb-2">
+      {/* Category Grid */}
+      <section className="mx-auto mt-8 max-w-7xl px-4 lg:px-8">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          {[
+            { title: "Totes", query: "Totes" },
+            { title: "Clutches", query: "Clutches" },
+            { title: "Crossbody", query: "Crossbody" },
+            { title: "Satchels", query: "Satchels" },
+          ].map((category, index) => (
+            <Link
+              key={category.title}
+              href={`/products?category=${category.query}`}
+              className="group relative h-56 overflow-hidden rounded-2xl"
+            >
+              <Image
+                src={products[index]?.image ?? products[0].image}
+                alt={category.title}
+                fill
+                className="object-cover transition duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 to-transparent flex items-end p-4">
+                <div>
+                  <p className="font-heading text-3xl text-cream">
+                    {category.title}
+                  </p>
+                  <p className="font-ui text-xs uppercase tracking-[0.14em] text-gold mt-1">
+                    Shop Now
+                  </p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Best Sellers */}
+      <section className="mx-auto mt-12 max-w-7xl px-4 lg:px-8">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="section-title">Best Sellers This Season</h2>
+          <Link
+            href="/products"
+            className="flex items-center gap-2 font-ui text-xs uppercase tracking-[0.15em] text-gold hover:gap-3 transition"
+          >
+            View All <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          {bestsellers.map((item) => (
+            <Link key={item.id} href={`/products/${item.slug}`}>
+              <article className="group rounded-2xl overflow-hidden border border-black/10 hover:shadow-lg transition">
+                <div className="relative aspect-[3/4] overflow-hidden bg-cream">
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    className="object-cover transition duration-500 group-hover:scale-110"
+                  />
+                  <button
+                    className="absolute right-3 top-3 rounded-full bg-white/90 p-2 hover:bg-white transition"
+                    aria-label="Add to wishlist"
+                  >
+                    ♡
+                  </button>
+                </div>
+                <div className="p-4">
+                  <p className="font-body text-lg text-charcoal font-semibold">
+                    {item.name}
+                  </p>
+                  <p className="font-ui text-xs uppercase tracking-[0.14em] text-rose mt-1">
+                    {formatCurrency(item.price)}
+                  </p>
+                  <p className="font-ui text-[10px] text-rose/60 mt-2">
+                    ★★★★★ (124 Reviews)
+                  </p>
+                </div>
+              </article>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* New Arrivals */}
+      <section className="mx-auto mt-12 max-w-7xl px-4 lg:px-8">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="section-title">Newest Collection</h2>
+          <Link
+            href="/products?sort=newest"
+            className="flex items-center gap-2 font-ui text-xs uppercase tracking-[0.15em] text-gold hover:gap-3 transition"
+          >
+            Shop New <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
           {arrivals.map((item) => (
+            <Link key={item.id} href={`/products/${item.slug}`}>
+              <article className="group rounded-2xl overflow-hidden border border-black/10 hover:shadow-lg transition">
+                <div className="relative aspect-[3/4] overflow-hidden bg-cream">
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    className="object-cover transition duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute top-3 left-3 bg-gold/90 rounded-full px-3 py-1">
+                    <p className="font-ui text-[10px] uppercase tracking-[0.14em] text-charcoal font-semibold">
+                      New
+                    </p>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <p className="font-body text-lg text-charcoal font-semibold">
+                    {item.name}
+                  </p>
+                  <p className="font-ui text-xs uppercase tracking-[0.14em] text-rose mt-1">
+                    {formatCurrency(item.price)}
+                  </p>
+                </div>
+              </article>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Brand Story */}
+      <section className="mx-auto mt-16 max-w-7xl px-4 lg:px-8">
+        <div className="rounded-2xl overflow-hidden grid lg:grid-cols-2 gap-8 items-center bg-white/60 border border-black/10">
+          <div className="relative h-96 lg:h-full overflow-hidden">
+            <Image
+              src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80"
+              alt="Craftsmanship"
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div className="p-6 lg:p-10">
+            <p className="font-ui text-[11px] uppercase tracking-[0.2em] text-gold">
+              Our Story
+            </p>
+            <h2 className="mt-4 font-heading text-4xl text-charcoal">
+              Handcrafted with Heritage
+            </h2>
+            <p className="mt-4 font-body text-xl text-rose/85 leading-relaxed">
+              Each ROSEQUI handbag is meticulously crafted by artisans who bring
+              decades of expertise to every stitch. We blend Italian
+              craftsmanship traditions with contemporary design aesthetics.
+            </p>
+            <Link
+              href="/products"
+              className="mt-6 inline-block rounded-full bg-rose px-6 py-3 font-ui text-xs uppercase tracking-[0.15em] text-white hover:bg-rose/90 transition"
+            >
+              Explore Our Collection
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="mx-auto mt-16 max-w-7xl px-4 lg:px-8">
+        <h2 className="section-title">Loved by Customers</h2>
+        <div className="mt-8 grid gap-5 md:grid-cols-3">
+          {testimonials.slice(0, 3).map((item) => (
             <article
               key={item.id}
-              className="group glass min-w-[290px] snap-start rounded-3xl p-4"
+              className="rounded-2xl border border-black/10 bg-white/70 p-6 shadow-sm"
             >
-              <div className="relative aspect-[4/5] overflow-hidden rounded-2xl">
+              <p className="font-ui text-sm text-gold">★★★★★</p>
+              <p className="mt-3 font-body text-lg text-charcoal">
+                "{item.quote}"
+              </p>
+              <div className="mt-4 flex items-center gap-3">
                 <Image
-                  src={item.image}
+                  src={item.avatar}
                   alt={item.name}
-                  fill
-                  className="object-cover transition duration-500 group-hover:scale-105"
+                  width={48}
+                  height={48}
+                  className="rounded-full object-cover"
                 />
-                <button
-                  className="absolute right-3 top-3 rounded-full bg-white/70 p-2"
-                  aria-label="Add to wishlist"
-                >
-                  ♡
-                </button>
-                <button className="absolute bottom-3 left-3 rounded-full bg-white/80 px-4 py-2 font-ui text-[11px] uppercase tracking-[0.14em] text-rose">
-                  Quick View
-                </button>
+                <div>
+                  <p className="font-ui text-xs uppercase tracking-[0.14em] text-charcoal font-semibold">
+                    {item.name}
+                  </p>
+                  {item.verified && (
+                    <p className="font-ui text-[10px] text-rose">
+                      ✓ Verified Purchase
+                    </p>
+                  )}
+                </div>
               </div>
-              <p className="mt-3 font-body text-2xl text-rose">{item.name}</p>
-              <p className="font-ui text-xs uppercase tracking-[0.14em] text-rose/75">
-                {formatCurrency(item.price)}
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* Newsletter Signup */}
+      <section className="mx-auto mt-16 max-w-7xl px-4 lg:px-8">
+        <div className="rounded-2xl bg-gradient-to-r from-rose/20 to-blush/20 border border-rose/30 p-10 lg:p-16 text-center">
+          <h2 className="font-heading text-4xl text-charcoal">
+            Get Exclusive Access
+          </h2>
+          <p className="mt-3 font-body text-xl text-rose/80 max-w-2xl mx-auto">
+            Be first to know about new collections, special sales, and exclusive
+            VIP events.
+          </p>
+          <form className="mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="flex-1 h-12 rounded-full border border-rose/40 bg-white/90 px-6 font-ui text-xs uppercase tracking-[0.14em] placeholder:text-rose/50 outline-none focus:border-rose focus:ring-2 focus:ring-rose/20"
+              required
+            />
+            <button
+              type="submit"
+              className="h-12 px-8 rounded-full bg-rose text-white font-ui text-xs uppercase tracking-[0.15em] hover:bg-rose/90 transition"
+            >
+              Subscribe
+            </button>
+          </form>
+          <p className="mt-4 font-ui text-[10px] text-rose/60">
+            We respect your privacy. Unsubscribe at any time.
+          </p>
+        </div>
+      </section>
+
+      {/* Trust Badges */}
+      <section className="mx-auto mt-16 max-w-7xl px-4 lg:px-8 mb-12">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              icon: Truck,
+              title: "Free Shipping",
+              desc: "On orders over $200 worldwide",
+            },
+            {
+              icon: Undo2,
+              title: "Easy Returns",
+              desc: "30-day money-back guarantee",
+            },
+            {
+              icon: ShieldCheck,
+              title: "Secure Checkout",
+              desc: "100% protected transactions",
+            },
+            {
+              icon: Sparkles,
+              title: "Lifetime Support",
+              desc: "Expert customer service",
+            },
+          ].map((badge) => (
+            <article
+              key={badge.title}
+              className="rounded-2xl border border-black/10 bg-white/60 p-6 text-center hover:shadow-lg transition"
+            >
+              <badge.icon className="mx-auto h-8 w-8 text-gold" />
+              <p className="mt-3 font-ui text-xs uppercase tracking-[0.15em] text-charcoal font-semibold">
+                {badge.title}
+              </p>
+              <p className="mt-2 font-body text-sm text-rose/70">
+                {badge.desc}
               </p>
             </article>
           ))}
         </div>
-      </section>
-
-      <section className="mx-auto mt-20 max-w-7xl px-4 lg:px-8">
-        <h2 className="section-title">Bestsellers</h2>
-        <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {bestsellers.map((item) => (
-            <article
-              key={item.id}
-              className="group rounded-3xl border border-white/45 bg-white/55 p-4 shadow-glass"
-            >
-              <div className="relative aspect-[4/5] overflow-hidden rounded-2xl">
-                <Image
-                  src={item.image}
-                  alt={item.name}
-                  fill
-                  className="object-cover transition duration-500 group-hover:scale-110"
-                />
-              </div>
-              <p className="mt-3 font-body text-2xl text-rose">{item.name}</p>
-              <div className="flex items-center gap-2 font-ui text-xs uppercase tracking-[0.14em] text-rose/80">
-                <span>{formatCurrency(item.price)}</span>
-                {item.originalPrice ? (
-                  <span className="line-through opacity-50">
-                    {formatCurrency(item.originalPrice)}
-                  </span>
-                ) : null}
-                <span>★★★★★</span>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto mt-20 grid max-w-7xl gap-4 px-4 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
-        {[
-          { title: "Totes", query: "Totes" },
-          { title: "Clutches", query: "Clutches" },
-          { title: "Crossbody", query: "Crossbody" },
-          { title: "Satchels", query: "Satchels" },
-        ].map((category, index) => (
-          <Link
-            key={category.title}
-            href={`/products?category=${category.query}`}
-            className="group relative h-72 overflow-hidden rounded-3xl"
-          >
-            <Image
-              src={products[index]?.image ?? products[0].image}
-              alt={category.title}
-              fill
-              className="object-cover transition duration-700 group-hover:scale-110"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/50 to-transparent" />
-            <span className="absolute bottom-4 left-4 font-heading text-3xl text-cream">
-              {category.title}
-            </span>
-          </Link>
-        ))}
-      </section>
-
-      <section className="mx-auto mt-20 grid max-w-7xl items-center gap-8 px-4 lg:grid-cols-2 lg:px-8">
-        <div className="relative h-[420px] overflow-hidden rounded-3xl">
-          <Image
-            src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1500&q=80"
-            alt="Craftsmanship"
-            fill
-            className="object-cover"
-          />
-        </div>
-        <div>
-          <p className="ui-label">Craftsmanship Story</p>
-          <h2 className="section-title mt-3">
-            Italian leather, hand-stitched precision.
-          </h2>
-          <p className="mt-4 font-body text-2xl text-rose/85">{brand.story}</p>
-        </div>
-      </section>
-
-      <section className="mx-auto mt-20 max-w-5xl px-4 lg:px-8">
-        <h2 className="section-title">Testimonials</h2>
-        <div className="mt-6 rounded-3xl border border-white/45 bg-white/55 p-6 shadow-glass">
-          <Carousel>
-            {testimonials.map((item) => (
-              <article
-                key={item.id}
-                className="grid gap-4 md:grid-cols-[80px_1fr] md:items-center"
-              >
-                <Image
-                  src={item.avatar}
-                  alt={item.name}
-                  width={80}
-                  height={80}
-                  className="rounded-full object-cover"
-                />
-                <div>
-                  <p className="font-body text-3xl text-rose">“{item.quote}”</p>
-                  <p className="mt-2 font-ui text-xs uppercase tracking-[0.15em] text-rose/75">
-                    {item.name} · ★★★★★ ·{" "}
-                    {item.verified ? "Verified Purchase" : "Customer"}
-                  </p>
-                </div>
-              </article>
-            ))}
-          </Carousel>
-        </div>
-      </section>
-
-      <section className="mx-auto mt-20 max-w-7xl px-4 lg:px-8">
-        <h2 className="section-title">Instagram Shop</h2>
-        <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-          {products.slice(0, 6).map((item) => (
-            <article
-              key={item.id}
-              className="group relative aspect-square overflow-hidden rounded-2xl"
-            >
-              <Image
-                src={item.image}
-                alt={item.name}
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 grid place-items-end bg-charcoal/45 p-3 opacity-0 transition group-hover:opacity-100">
-                <p className="w-full rounded-xl bg-white/80 p-2 text-center font-ui text-[10px] uppercase tracking-[0.13em] text-rose">
-                  {item.name} · {formatCurrency(item.price)}
-                </p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto mt-20 max-w-7xl rounded-3xl bg-blush/85 px-4 py-14 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="section-title">Join the Circle</h2>
-          <p className="mt-3 font-body text-2xl text-rose/80">
-            Exclusive previews, private drops, and atelier stories in your
-            inbox.
-          </p>
-          <form className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <input
-              className="h-12 flex-1 rounded-full border border-champagne bg-white/70 px-5 font-ui text-xs uppercase tracking-[0.14em] text-rose outline-none"
-              placeholder="Your email"
-            />
-            <button className="h-12 rounded-full bg-gold-gradient px-6 font-ui text-xs uppercase tracking-[0.14em] text-charcoal">
-              Join the Circle
-            </button>
-          </form>
-        </div>
-      </section>
-
-      <section className="mx-auto mt-16 grid max-w-7xl gap-4 px-4 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
-        {[
-          { icon: Truck, label: "Free Shipping" },
-          { icon: Undo2, label: "30-Day Returns" },
-          { icon: ShieldCheck, label: "Secure Checkout" },
-          { icon: Sparkles, label: "5-Year Warranty" },
-        ].map((badge) => (
-          <article
-            key={badge.label}
-            className="rounded-2xl border border-white/45 bg-white/60 p-4 text-center shadow-glass"
-          >
-            <badge.icon className="mx-auto h-6 w-6 text-champagne" />
-            <p className="mt-2 font-ui text-xs uppercase tracking-[0.15em] text-rose">
-              {badge.label}
-            </p>
-          </article>
-        ))}
       </section>
     </main>
   );
