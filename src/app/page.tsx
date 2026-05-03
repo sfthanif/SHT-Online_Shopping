@@ -176,7 +176,10 @@ export default function Home() {
         <div className="mt-6 rounded-3xl border border-white/45 bg-white/55 p-6 shadow-glass">
           <Carousel>
             {testimonials.map((item) => (
-              <article className="grid gap-4 md:grid-cols-[80px_1fr] md:items-center">
+              <article
+                key={item.id}
+                className="grid gap-4 md:grid-cols-[80px_1fr] md:items-center"
+              >
                 <Image
                   src={item.avatar}
                   alt={item.name}
