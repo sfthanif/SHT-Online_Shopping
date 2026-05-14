@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { FaTimes, FaUserCircle } from "react-icons/fa";
+import { FaGoogle, FaTimes, FaUserCircle, FaUserPlus } from "react-icons/fa";
 import { useAuth } from "@/contexts/AuthContext";
 
 type LoginModalProps = {
@@ -10,12 +10,19 @@ type LoginModalProps = {
 };
 
 const LoginModal = ({ open, onClose }: LoginModalProps) => {
-  const { login } = useAuth();
+  const { login, signUp, signInWithGoogle } = useAuth();
+  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   useEffect(() => {
     if (open) {
+      setMode("login");
+      setName("");
+      setPhone("");
+      setEmail("");
       setPassword("");
     }
   }, [open]);
@@ -24,21 +31,30 @@ const LoginModal = ({ open, onClose }: LoginModalProps) => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    login(email, password);
+    if (mode === "signup") {
+      signUp({
+        name: name || email.split("@")[0] || "Guest Shopper",
+        email,
+        address: "122 Pink Avenue, Mumbai, India",
+        phone,
+      });
+    } else {
+      login(email, password);
+    }
     onClose();
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4 backdrop-blur-sm">
       <div className="w-full max-w-md overflow-hidden rounded-[1.75rem] border border-pink-100 bg-white shadow-[0_30px_90px_rgba(15,23,42,0.25)]">
-        <div className="bg-gradient-to-r from-pink-500 to-rose-400 px-6 py-5 text-white">
+        <div className="bg-linear-to-r from-pink-500 to-rose-400 px-6 py-5 text-white">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-white/85">
-                Secure sign in
+                {mode === "signup" ? "Create your account" : "Secure sign in"}
               </p>
               <h2 className="mt-1 text-2xl font-semibold">
-                Welcome to LuxeBags
+                {mode === "signup" ? "Join LuxeBags" : "Welcome to LuxeBags"}
               </h2>
             </div>
             <button
@@ -54,8 +70,40 @@ const LoginModal = ({ open, onClose }: LoginModalProps) => {
         <form onSubmit={handleSubmit} className="space-y-5 p-6">
           <div className="flex items-center gap-3 rounded-2xl border border-pink-100 bg-pink-50/70 px-4 py-3 text-sm text-slate-600">
             <FaUserCircle className="text-xl text-pink-500" />
-            <span>Use any email and password to enter the demo store.</span>
+            <span>
+              {mode === "signup"
+                ? "Create a demo account to save your profile and shop the store."
+                : "Use any email and password to enter the demo store."}
+            </span>
           </div>
+
+          {mode === "signup" && (
+            <label className="block space-y-2">
+              <span className="text-sm font-medium text-slate-700">Name</span>
+              <input
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="Your name"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none ring-0 transition focus:border-pink-400 focus:shadow-[0_0_0_4px_rgba(236,72,153,0.12)]"
+                required
+              />
+            </label>
+          )}
+
+          {mode === "signup" && (
+            <label className="block space-y-2">
+              <span className="text-sm font-medium text-slate-700">Phone</span>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+                placeholder="Your phone number"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none ring-0 transition focus:border-pink-400 focus:shadow-[0_0_0_4px_rgba(236,72,153,0.12)]"
+                required
+              />
+            </label>
+          )}
 
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-700">Email</span>
@@ -85,8 +133,38 @@ const LoginModal = ({ open, onClose }: LoginModalProps) => {
             type="submit"
             className="w-full rounded-full bg-pink-500 px-5 py-3 font-semibold text-white shadow-lg shadow-pink-200 transition hover:bg-pink-600"
           >
-            Login
+            {mode === "signup" ? "Sign Up" : "Login"}
           </button>
+
+          {mode === "signup" && (
+            <button
+              type="button"
+              onClick={() => {
+                signInWithGoogle();
+                onClose();
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-full border border-slate-200 px-5 py-3 font-semibold text-slate-700 transition hover:border-pink-300 hover:bg-pink-50 hover:text-pink-600"
+            >
+              <FaGoogle className="text-base" />
+              Continue with Google
+            </button>
+          )}
+
+          <div className="flex items-center justify-center gap-2 text-sm text-slate-600">
+            <span>
+              {mode === "signup"
+                ? "Already have an account?"
+                : "Don’t have an account?"}
+            </span>
+            <button
+              type="button"
+              onClick={() => setMode(mode === "login" ? "signup" : "login")}
+              className="inline-flex items-center gap-1 font-semibold text-pink-600 hover:text-pink-700"
+            >
+              <FaUserPlus className="text-xs" />
+              {mode === "signup" ? "Sign in" : "Sign up"}
+            </button>
+          </div>
         </form>
       </div>
     </div>

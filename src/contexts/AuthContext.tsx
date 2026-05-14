@@ -15,16 +15,19 @@ type AuthContextValue = {
   hydrated: boolean;
   isLoggedIn: boolean;
   login: (email: string, password: string) => void;
+  signUp: (profile: UserProfile) => void;
+  signInWithGoogle: () => void;
   logout: () => void;
   updateProfile: (profile: UserProfile) => void;
 };
 
 const AUTH_KEY = "sht_luxebags_auth_user";
 const defaultAddress = "122 Pink Avenue, Mumbai, India";
+const defaultPhone = "";
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-const createUserFromEmail = (email: string): AuthUser => {
+const createUserFromIdentity = (email: string, name?: string): AuthUser => {
   const safeEmail = email.trim() || "guest@example.com";
   const namePart = safeEmail.split("@")[0] || "Guest";
   const formattedName = namePart
@@ -32,9 +35,10 @@ const createUserFromEmail = (email: string): AuthUser => {
     .replace(/\b\w/g, (character) => character.toUpperCase());
 
   return {
-    name: formattedName || "Guest Shopper",
+    name: name?.trim() || formattedName || "Guest Shopper",
     email: safeEmail,
     address: defaultAddress,
+    phone: defaultPhone,
     avatarSeed: safeEmail,
   };
 };
@@ -69,13 +73,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       user,
       hydrated,
       isLoggedIn: Boolean(user),
-      login: (email: string) => setUser(createUserFromEmail(email)),
+      login: (email: string) => setUser(createUserFromIdentity(email)),
+      signUp: (profile: UserProfile) => {
+        setUser(
+          createUserFromIdentity(profile.email, profile.name || undefined),
+        );
+      },
+      signInWithGoogle: () => {
+        setUser(
+          createUserFromIdentity("google.user@luxebags.com", "Google Shopper"),
+        );
+      },
       logout: () => setUser(null),
       updateProfile: (profile: UserProfile) => {
         setUser((current) => {
           const seed = current?.avatarSeed ?? profile.email;
           return {
-            ...profile,
+            name: profile.name,
+            email: current?.email ?? profile.email,
+            address: profile.address,
+            phone: profile.phone,
+            avatarUrl: profile.avatarUrl,
             avatarSeed: seed,
           };
         });

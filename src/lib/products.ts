@@ -36,6 +36,7 @@ export const products: Product[] = [
     category: "Tote",
     description:
       "A roomy everyday tote with a polished silhouette and signature gold-tone details.",
+    reviewCount: 62,
   },
   {
     id: "belle-clutch",
@@ -47,6 +48,7 @@ export const products: Product[] = [
     category: "Clutch",
     description:
       "An evening-ready clutch with a refined finish and statement clasp.",
+    reviewCount: 34,
   },
   {
     id: "serene-shoulder",
@@ -58,6 +60,7 @@ export const products: Product[] = [
     category: "Shoulder",
     description:
       "Soft structure, elegant drape, and a luxe strap that sits beautifully on the shoulder.",
+    reviewCount: 48,
   },
   {
     id: "petal-sling",
@@ -69,6 +72,7 @@ export const products: Product[] = [
     category: "Sling",
     description:
       "A light, hands-free sling bag designed for stylish city movement.",
+    reviewCount: 19,
   },
   {
     id: "aura-bucket",
@@ -80,6 +84,7 @@ export const products: Product[] = [
     category: "Bucket",
     description:
       "A sculpted bucket bag with soft edges and premium drawstring closure.",
+    reviewCount: 27,
   },
   {
     id: "velvet-hobo",
@@ -91,6 +96,7 @@ export const products: Product[] = [
     category: "Hobo",
     description:
       "A relaxed hobo silhouette with elevated hardware and all-day comfort.",
+    reviewCount: 41,
   },
 ];
 
@@ -146,8 +152,8 @@ export const mockOrders: Order[] = [
   },
 ];
 
-export const currency = new Intl.NumberFormat("en-US", {
+export const currency = new Intl.NumberFormat("bn-BD", {
   style: "currency",
-  currency: "USD",
+  currency: "BDT",
   maximumFractionDigits: 0,
 });

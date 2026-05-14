@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import {
   FaBoxOpen,
   FaChartLine,
@@ -11,7 +11,7 @@ import {
 import DashboardSidebar from "@/components/DashboardSidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCatalog } from "@/contexts/CatalogContext";
-import { currency, mockOrders, buildPlaceholderImage } from "@/lib/products";
+import { buildPlaceholderImage, currency, mockOrders } from "@/lib/products";
 import { Product } from "@/lib/types";
 
 const DashboardPage = () => {
@@ -21,9 +21,12 @@ const DashboardPage = () => {
     name: "",
     price: "",
     imageUrl: "",
+    description: "",
     stock: "",
     category: "New Arrival",
   });
+  const [imageFileName, setImageFileName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const metrics = useMemo(() => {
     const totalRevenue = mockOrders.reduce(
@@ -58,31 +61,59 @@ const DashboardPage = () => {
     );
   }
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSaving(true);
 
-    const price = Number(form.price);
-    const stock = Number(form.stock);
+    try {
+      const price = Number(form.price);
+      const stock = Number(form.stock);
+      const fileInput = event.currentTarget.elements.namedItem(
+        "imageFile",
+      ) as HTMLInputElement | null;
+      const file = fileInput?.files?.[0];
 
-    const newProduct: Omit<Product, "id"> = {
-      name: form.name,
-      price: Number.isFinite(price) ? price : 0,
-      rating: 4.8,
-      imageUrl:
-        form.imageUrl.trim() || buildPlaceholderImage(form.name || "Bag"),
-      stock: Number.isFinite(stock) ? stock : 0,
-      category: form.category,
-      description: "Added from the premium dashboard.",
-    };
+      let imageUrl = form.imageUrl.trim();
 
-    addProduct(newProduct);
-    setForm({
-      name: "",
-      price: "",
-      imageUrl: "",
-      stock: "",
-      category: "New Arrival",
-    });
+      if (!imageUrl && file) {
+        imageUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = () => reject(reader.error);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      const newProduct: Omit<Product, "id"> = {
+        name: form.name,
+        price: Number.isFinite(price) ? price : 0,
+        rating: 4.8,
+        imageUrl: imageUrl || buildPlaceholderImage(form.name || "Bag"),
+        stock: Number.isFinite(stock) ? stock : 0,
+        category: form.category,
+        description:
+          form.description.trim() || "Added from the premium dashboard.",
+      };
+
+      addProduct(newProduct);
+      setForm({
+        name: "",
+        price: "",
+        imageUrl: "",
+        description: "",
+        stock: "",
+        category: "New Arrival",
+      });
+      setImageFileName("");
+      event.currentTarget.reset();
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    setImageFileName(file?.name ?? "");
   };
 
   return (
@@ -271,6 +302,23 @@ const DashboardPage = () => {
                   />
                 </label>
 
+                <label className="space-y-2">
+                  <span className="text-sm font-medium text-slate-700">
+                    Description
+                  </span>
+                  <textarea
+                    value={form.description}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        description: event.target.value,
+                      }))
+                    }
+                    placeholder="Describe the bag, materials, and design details"
+                    className="min-h-28 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-pink-400 focus:shadow-[0_0_0_4px_rgba(236,72,153,0.1)]"
+                  />
+                </label>
+
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="space-y-2">
                     <span className="text-sm font-medium text-slate-700">
@@ -310,6 +358,24 @@ const DashboardPage = () => {
 
                 <label className="space-y-2">
                   <span className="text-sm font-medium text-slate-700">
+                    Upload bag image
+                  </span>
+                  <input
+                    name="imageFile"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition file:mr-4 file:rounded-full file:border-0 file:bg-pink-50 file:px-4 file:py-2 file:font-semibold file:text-pink-600 hover:border-pink-300"
+                  />
+                  <p className="text-xs text-slate-500">
+                    {imageFileName
+                      ? `Selected file: ${imageFileName}`
+                      : "Leave blank to use the image URL or a generated placeholder."}
+                  </p>
+                </label>
+
+                <label className="space-y-2">
+                  <span className="text-sm font-medium text-slate-700">
                     Image URL
                   </span>
                   <input
@@ -344,9 +410,10 @@ const DashboardPage = () => {
 
               <button
                 type="submit"
-                className="mt-6 w-full rounded-full bg-pink-500 px-5 py-3 font-semibold text-white shadow-lg shadow-pink-200 transition hover:bg-pink-600"
+                disabled={isSaving}
+                className="mt-6 w-full rounded-full bg-pink-500 px-5 py-3 font-semibold text-white shadow-lg shadow-pink-200 transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:bg-pink-300"
               >
-                Add to catalog
+                {isSaving ? "Saving product..." : "Add to catalog"}
               </button>
             </form>
           </section>

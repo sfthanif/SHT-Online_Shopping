@@ -23,13 +23,15 @@ const WishlistButton = ({ productId }: WishlistButtonProps) => {
       type="button"
       onClick={handleClick}
       aria-label={active ? "Remove from wishlist" : "Add to wishlist"}
-      className={`inline-flex h-11 w-11 items-center justify-center rounded-full border backdrop-blur transition hover:-translate-y-0.5 ${
+      className={`inline-flex h-8 w-8 items-center justify-center rounded-full border backdrop-blur transition hover:-translate-y-0.5 ${
         active
           ? "border-pink-500 bg-pink-500 text-white shadow-lg shadow-pink-200"
-          : "border-white/60 bg-white/80 text-pink-500 shadow-md"
+          : "border-white/60 bg-white/80 text-pink-500 shadow-sm"
       }`}
     >
-      <FaHeart className={active ? "text-white" : "text-pink-500"} />
+      <FaHeart
+        className={active ? "text-white text-sm" : "text-pink-500 text-sm"}
+      />
     </button>
   );
 };

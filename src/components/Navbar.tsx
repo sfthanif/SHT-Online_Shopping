@@ -1,18 +1,21 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  FaCamera,
   FaHeart,
   FaSearch,
   FaShoppingCart,
+  FaTimes,
   FaSignOutAlt,
   FaUserCircle,
 } from "react-icons/fa";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useSearch } from "@/contexts/SearchContext";
-import { useWishlist } from "@/contexts/WishlistContext";
 
 type NavbarProps = {
   onCartOpen: () => void;
@@ -21,71 +24,195 @@ type NavbarProps = {
 
 const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
   const router = useRouter();
-  const { user, isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, logout } = useAuth();
   const { itemCount } = useCart();
-  const { wishlistCount } = useWishlist();
   const { query, setQuery } = useSearch();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("mousedown", handleClickOutside);
+    return () => window.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setMenuOpen(false);
+    }
+  }, [isLoggedIn]);
 
   const handleLogout = () => {
     logout();
+    setMenuOpen(false);
     router.push("/");
   };
 
-  return (
-    <header className="sticky top-0 z-40 border-b border-pink-100/80 bg-white/80 backdrop-blur-xl">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-500 to-rose-400 text-lg font-bold text-white shadow-lg shadow-pink-200">
-              LB
-            </span>
-            <div>
-              <p className="font-display text-2xl font-bold tracking-tight text-pink-500">
-                LuxeBags
-              </p>
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">
-                by SHT
-              </p>
-            </div>
-          </Link>
+  const handleCameraClick = () => {
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.accept = "image/*";
+    fileInput.onchange = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setQuery(file.name);
+          console.log("Selected image:", file);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+    fileInput.click();
+  };
 
-          <div className="ml-auto flex items-center gap-2 sm:gap-3">
+  return (
+    <header className="sticky top-0 z-40 border-b border-pink-100/80 bg-white/85 backdrop-blur-xl">
+      <div className="mx-auto w-full max-w-7xl px-3 py-2.5 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-6">
+          {/* Logo - desktop/tablet only */}
+          <div className="hidden items-center sm:flex">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/SHT_logo.png"
+                alt="SHT Shop"
+                width={56}
+                height={56}
+                className="h-14 w-14 rounded-2xl object-contain"
+              />
+            </Link>
+          </div>
+
+          {/* Search bar: top / center */}
+          <div className="relative order-1 hidden mx-1 sm:order-2 sm:mx-4 lg:block lg:mx-8">
+            <FaSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-pink-400" />
+            <input
+              ref={searchInputRef}
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search handbags by name..."
+              className="w-full rounded-full border border-pink-100 bg-white py-2.5 pl-12 pr-12 text-sm outline-none transition placeholder:text-slate-400 focus:border-pink-300 focus:shadow-[0_0_0_4px_rgba(236,72,153,0.1)] sm:py-3"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (query.trim()) {
+                  setQuery("");
+                  searchInputRef.current?.focus();
+                } else {
+                  handleCameraClick();
+                }
+              }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-pink-400 transition hover:text-pink-600"
+              aria-label={query.trim() ? "Clear search" : "Camera search"}
+            >
+              {query.trim() ? (
+                <FaTimes className="text-lg" />
+              ) : (
+                <FaCamera className="text-lg" />
+              )}
+            </button>
+          </div>
+
+          {/* Login / User - right on small, right on sm+ */}
+          <div className="hidden items-center justify-end gap-2 sm:order-3 sm:flex sm:gap-3">
             {isLoggedIn ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  className="hidden rounded-full px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-pink-50 hover:text-pink-600 md:inline-flex"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/orders"
-                  className="hidden rounded-full px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-pink-50 hover:text-pink-600 md:inline-flex"
-                >
-                  Orders
-                </Link>
-                <Link
-                  href="/wishlist"
-                  className="hidden rounded-full px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-pink-50 hover:text-pink-600 md:inline-flex"
-                >
-                  Wishlist
-                </Link>
-                <Link
-                  href="/profile"
-                  className="inline-flex items-center gap-2 rounded-full bg-pink-50 px-3 py-2 text-sm font-semibold text-pink-600 transition hover:bg-pink-100"
-                >
-                  <FaUserCircle className="text-xl" />
-                  <span className="hidden sm:inline">{user?.name}</span>
-                </Link>
+              <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   type="button"
-                  onClick={handleLogout}
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-pink-300 hover:bg-pink-50 hover:text-pink-600"
+                  onClick={onCartOpen}
+                  className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-pink-200 bg-white text-pink-600 shadow-sm transition hover:border-pink-300 hover:bg-pink-50 sm:h-11 sm:w-11"
+                  aria-label="Open cart"
                 >
-                  <FaSignOutAlt />
-                  <span className="hidden sm:inline">Logout</span>
+                  <FaShoppingCart className="text-[1.05rem] sm:text-base" />
+                  {itemCount > 0 && (
+                    <span className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-pink-500 px-1 text-[11px] font-semibold text-white">
+                      {itemCount}
+                    </span>
+                  )}
                 </button>
-              </>
+
+                <div ref={menuRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setMenuOpen((current) => !current)}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-pink-200 bg-white text-pink-600 shadow-sm transition hover:border-pink-300 hover:bg-pink-50 sm:h-11 sm:w-11"
+                    aria-label="Open profile menu"
+                    aria-haspopup="menu"
+                    aria-expanded={menuOpen}
+                  >
+                    <FaUserCircle className="text-[1.35rem] sm:text-2xl" />
+                  </button>
+
+                  {menuOpen && (
+                    <div className="absolute right-0 top-12 z-50 w-56 overflow-hidden rounded-3xl border border-pink-100 bg-white shadow-xl shadow-pink-100 sm:w-60">
+                      <div className="border-b border-pink-50 px-4 py-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-pink-400">
+                          Account
+                        </p>
+                        <p className="mt-1 text-sm font-semibold text-slate-900">
+                          {isLoggedIn ? "Signed in" : "Guest"}
+                        </p>
+                      </div>
+                      <div className="px-2 py-2">
+                        <Link
+                          href="/profile"
+                          onClick={() => setMenuOpen(false)}
+                          className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-pink-50 hover:text-pink-600"
+                          role="menuitem"
+                        >
+                          <FaUserCircle className="text-pink-500" />
+                          Profile
+                        </Link>
+                        <Link
+                          href="/wishlist"
+                          onClick={() => setMenuOpen(false)}
+                          className="mt-1 flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-pink-50 hover:text-pink-600"
+                          role="menuitem"
+                        >
+                          <FaHeart className="text-pink-500" />
+                          Wishlist
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMenuOpen(false);
+                            onCartOpen();
+                          }}
+                          className="mt-1 flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold text-slate-700 transition hover:bg-pink-50 hover:text-pink-600"
+                          role="menuitem"
+                        >
+                          <FaShoppingCart className="text-pink-500" />
+                          Cart
+                        </button>
+                        <Link
+                          href="/profile"
+                          onClick={() => setMenuOpen(false)}
+                          className="sr-only"
+                          role="menuitem"
+                        ></Link>
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="mt-1 flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold text-slate-700 transition hover:bg-pink-50 hover:text-pink-600"
+                          role="menuitem"
+                        >
+                          <FaSignOutAlt className="text-pink-500" />
+                          Logout
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             ) : (
               <button
                 type="button"
@@ -96,67 +223,6 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
                 Login
               </button>
             )}
-
-            <button
-              type="button"
-              onClick={onCartOpen}
-              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-pink-200 bg-white text-pink-600 shadow-sm transition hover:border-pink-300 hover:bg-pink-50"
-              aria-label="Open cart"
-            >
-              <FaShoppingCart />
-              {itemCount > 0 && (
-                <span className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-pink-500 px-1 text-[11px] font-semibold text-white">
-                  {itemCount}
-                </span>
-              )}
-            </button>
-
-            <Link
-              href="/wishlist"
-              className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-pink-200 bg-white text-pink-600 shadow-sm transition hover:border-pink-300 hover:bg-pink-50"
-              aria-label="View wishlist"
-            >
-              <FaHeart className="text-pink-500" />
-              {wishlistCount > 0 && (
-                <span className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1 text-[11px] font-semibold text-white">
-                  {wishlistCount}
-                </span>
-              )}
-            </Link>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-          <div className="relative w-full lg:max-w-2xl lg:flex-1">
-            <FaSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-pink-400" />
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search handbags by name..."
-              className="w-full rounded-full border border-pink-100 bg-white px-12 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-pink-300 focus:shadow-[0_0_0_4px_rgba(236,72,153,0.1)]"
-            />
-          </div>
-
-          <div className="flex flex-wrap gap-2 lg:justify-end">
-            <Link
-              href="/"
-              className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-pink-50 hover:text-pink-600"
-            >
-              Home
-            </Link>
-            <Link
-              href="/profile"
-              className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-pink-50 hover:text-pink-600"
-            >
-              Profile
-            </Link>
-            <Link
-              href="#products"
-              className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-pink-50 hover:text-pink-600"
-            >
-              Shop
-            </Link>
           </div>
         </div>
       </div>

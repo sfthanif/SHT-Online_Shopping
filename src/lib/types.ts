@@ -7,6 +7,7 @@ export type Product = {
   stock: number;
   category?: string;
   description?: string;
+  reviewCount?: number;
 };
 
 export type CartItem = Product & {
@@ -17,6 +18,8 @@ export type UserProfile = {
   name: string;
   email: string;
   address: string;
+  phone: string;
+  avatarUrl?: string;
 };
 
 export type AuthUser = UserProfile & {
