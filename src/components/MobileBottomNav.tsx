@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import {
   FaCamera,
   FaBell,
@@ -11,6 +11,7 @@ import {
   FaVideo,
 } from "react-icons/fa";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCatalog } from "@/contexts/CatalogContext";
 import { useCart } from "@/contexts/CartContext";
 import { useSearch } from "@/contexts/SearchContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -25,6 +26,7 @@ const MobileBottomNav = ({
   onProfileOpen,
 }: MobileBottomNavProps) => {
   const { isLoggedIn } = useAuth();
+  const { products } = useCatalog();
   const { itemCount } = useCart();
   const { wishlistCount } = useWishlist();
   const { query, setQuery } = useSearch();
@@ -52,13 +54,22 @@ const MobileBottomNav = ({
     }
   };
 
+  const categoryItems = useMemo(() => {
+    const uniqueCategories = Array.from(
+      new Set(products.map((product) => product.category).filter(Boolean)),
+    ) as string[];
+    return ["All", ...uniqueCategories];
+  }, [products]);
+
+  const normalizedQuery = query.trim().toLowerCase();
+
   // Show only on small screens (hide on md and up via className on wrappers)
 
   return (
     <>
       {/* Fixed Top Search Bar */}
       <div
-        className="md:hidden"
+        className="only-under-600"
         style={{
           position: "fixed",
           top: 0,
@@ -135,11 +146,52 @@ const MobileBottomNav = ({
             {query.trim() ? <FaTimes /> : <FaCamera />}
           </button>
         </div>
+
+        <div
+          style={{
+            marginTop: "10px",
+            display: "flex",
+            gap: "14px",
+            overflowX: "auto",
+            whiteSpace: "nowrap",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          {categoryItems.map((category) => {
+            const isAll = category === "All";
+            const isActive = isAll
+              ? normalizedQuery.length === 0
+              : normalizedQuery === category.toLowerCase();
+
+            return (
+              <button
+                key={category}
+                type="button"
+                onClick={() => setQuery(isAll ? "" : category)}
+                style={{
+                  border: "none",
+                  background: "transparent",
+                  padding: "0 0 8px 0",
+                  borderBottom: isActive
+                    ? "3px solid rgb(220, 38, 38)"
+                    : "3px solid transparent",
+                  color: isActive ? "rgb(220, 38, 38)" : "rgb(31, 41, 55)",
+                  fontSize: "18px",
+                  fontWeight: isActive ? 700 : 500,
+                  lineHeight: 1.2,
+                  cursor: "pointer",
+                }}
+              >
+                {category}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Fixed Bottom Navigation Bar */}
       <div
-        className="md:hidden"
+        className="only-under-600-grid"
         style={{
           position: "fixed",
           bottom: 0,
@@ -152,7 +204,6 @@ const MobileBottomNav = ({
           backgroundColor: "rgba(255, 255, 255, 0.95)",
           backdropFilter: "blur(10px)",
           padding: "8px 12px",
-          display: "grid",
           gridTemplateColumns: "repeat(5, 1fr)",
           gap: "8px",
         }}

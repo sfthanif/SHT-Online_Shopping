@@ -1,21 +1,30 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   FaCamera,
   FaHeart,
+  FaRegHeart,
   FaSearch,
   FaShoppingCart,
   FaTimes,
   FaSignOutAlt,
   FaUserCircle,
+  FaExchangeAlt,
+  FaBars,
+  FaChevronDown,
+  FaRocket,
 } from "react-icons/fa";
+import { FiShoppingCart, FiHeart } from "react-icons/fi";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCatalog } from "@/contexts/CatalogContext";
 import { useCart } from "@/contexts/CartContext";
 import { useSearch } from "@/contexts/SearchContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { useSidebar } from "@/contexts/SidebarContext";
 
 type NavbarProps = {
   onCartOpen: () => void;
@@ -23,10 +32,13 @@ type NavbarProps = {
 };
 
 const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
+  const { toggle: toggleSidebar, isOpen: isSidebarOpen } = useSidebar();
   const router = useRouter();
+  const { products } = useCatalog();
   const { isLoggedIn, logout } = useAuth();
   const { itemCount } = useCart();
   const { query, setQuery } = useSearch();
+  const { wishlistCount } = useWishlist();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -73,33 +85,57 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
     fileInput.click();
   };
 
+  const categoryItems = useMemo(() => {
+    const uniqueCategories = Array.from(
+      new Set(products.map((product) => product.category).filter(Boolean)),
+    ) as string[];
+    return ["All", ...uniqueCategories];
+  }, [products]);
+
+  const normalizedQuery = query.trim().toLowerCase();
+
   return (
-    <header className="sticky top-0 z-40 border-b border-pink-100/80 bg-white/85 backdrop-blur-xl">
-      <div className="mx-auto w-full max-w-7xl px-3 py-2.5 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 items-center gap-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-6">
-          {/* Logo - desktop/tablet only */}
-          <div className="hidden items-center sm:flex">
-            <Link href="/" className="flex items-center">
+    <header className="only-from-600 fixed top-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-xl shadow-sm">
+      {/* Top Navbar */}
+      <div className="border-b border-pink-100 bg-slate-50 text-xs text-slate-600 hidden md:block">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-3 py-2 sm:px-6 lg:px-8">
+          <span>Get up to 50% off new season styles, limited time only</span>
+          <div className="flex items-center gap-4 font-semibold">
+            <Link href="#" className="hover:text-pink-600 transition">
+              Help Center
+            </Link>
+            <Link href="#" className="hover:text-pink-600 transition">
+              Order Tracking
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto w-full max-w-7xl border-b border-pink-100/80 px-3 py-2.5 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-6">
+          {/* Logo */}
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center gap-3">
               <Image
                 src="/SHT_logo.png"
                 alt="SHT Shop"
                 width={56}
                 height={56}
-                className="h-14 w-14 rounded-2xl object-contain"
+                className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl object-contain"
               />
             </Link>
           </div>
 
           {/* Search bar: top / center */}
-          <div className="relative order-1 hidden mx-1 sm:order-2 sm:mx-4 lg:block lg:mx-8">
-            <FaSearch className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-pink-400" />
+          <div className="relative order-2 mx-2 lg:mx-8 flex items-center">
+            <FaSearch className="absolute left-4 text-slate-400 pointer-events-none" />
             <input
               ref={searchInputRef}
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search handbags by name..."
-              className="w-full rounded-full border border-pink-100 bg-white py-2.5 pl-12 pr-12 text-sm outline-none transition placeholder:text-slate-400 focus:border-pink-300 focus:shadow-[0_0_0_4px_rgba(236,72,153,0.1)] sm:py-3"
+              placeholder="Search for products..."
+              className="w-full rounded-md bg-slate-100/60 py-2.5 pl-10 pr-12 text-sm text-slate-700 outline-none transition placeholder:text-slate-500 focus:bg-slate-200/70 focus:ring-2 focus:ring-pink-200 sm:py-3"
             />
             <button
               type="button"
@@ -111,7 +147,7 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
                   handleCameraClick();
                 }
               }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-pink-400 transition hover:text-pink-600"
+              className="absolute right-4 text-slate-500 transition hover:text-pink-600"
               aria-label={query.trim() ? "Clear search" : "Camera search"}
             >
               {query.trim() ? (
@@ -123,90 +159,45 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
           </div>
 
           {/* Login / User - right on small, right on sm+ */}
-          <div className="hidden items-center justify-end gap-2 sm:order-3 sm:flex sm:gap-3">
+          <div className="flex items-center justify-end gap-4 lg:gap-6 order-3">
             {isLoggedIn ? (
-              <div className="flex items-center gap-2 sm:gap-3">
-                <button
-                  type="button"
-                  onClick={onCartOpen}
-                  className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-pink-200 bg-white text-pink-600 shadow-sm transition hover:border-pink-300 hover:bg-pink-50 sm:h-11 sm:w-11"
-                  aria-label="Open cart"
-                >
-                  <FaShoppingCart className="text-[1.05rem] sm:text-base" />
-                  {itemCount > 0 && (
-                    <span className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-pink-500 px-1 text-[11px] font-semibold text-white">
-                      {itemCount}
-                    </span>
-                  )}
-                </button>
-
+              <div className="flex items-center gap-2">
                 <div ref={menuRef} className="relative">
                   <button
                     type="button"
                     onClick={() => setMenuOpen((current) => !current)}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-pink-200 bg-white text-pink-600 shadow-sm transition hover:border-pink-300 hover:bg-pink-50 sm:h-11 sm:w-11"
+                    className="flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-pink-600 transition"
                     aria-label="Open profile menu"
                     aria-haspopup="menu"
                     aria-expanded={menuOpen}
                   >
-                    <FaUserCircle className="text-[1.35rem] sm:text-2xl" />
+                    <span>My Account</span>
                   </button>
 
                   {menuOpen && (
-                    <div className="absolute right-0 top-12 z-50 w-56 overflow-hidden rounded-3xl border border-pink-100 bg-white shadow-xl shadow-pink-100 sm:w-60">
+                    <div className="absolute right-0 top-8 z-50 w-56 overflow-hidden rounded-xl border border-pink-100 bg-white shadow-xl">
                       <div className="border-b border-pink-50 px-4 py-3">
-                        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-pink-400">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-pink-400">
                           Account
                         </p>
                         <p className="mt-1 text-sm font-semibold text-slate-900">
-                          {isLoggedIn ? "Signed in" : "Guest"}
+                          Signed in
                         </p>
                       </div>
                       <div className="px-2 py-2">
                         <Link
                           href="/profile"
                           onClick={() => setMenuOpen(false)}
-                          className="flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-pink-50 hover:text-pink-600"
-                          role="menuitem"
+                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-pink-50 hover:text-pink-600"
                         >
-                          <FaUserCircle className="text-pink-500" />
-                          Profile
+                          <FaUserCircle className="text-pink-500" /> Profile
                         </Link>
-                        <Link
-                          href="/wishlist"
-                          onClick={() => setMenuOpen(false)}
-                          className="mt-1 flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-pink-50 hover:text-pink-600"
-                          role="menuitem"
-                        >
-                          <FaHeart className="text-pink-500" />
-                          Wishlist
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMenuOpen(false);
-                            onCartOpen();
-                          }}
-                          className="mt-1 flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold text-slate-700 transition hover:bg-pink-50 hover:text-pink-600"
-                          role="menuitem"
-                        >
-                          <FaShoppingCart className="text-pink-500" />
-                          Cart
-                        </button>
-                        <Link
-                          href="/profile"
-                          onClick={() => setMenuOpen(false)}
-                          className="sr-only"
-                          role="menuitem"
-                        ></Link>
                         <button
                           type="button"
                           onClick={handleLogout}
-                          className="mt-1 flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm font-semibold text-slate-700 transition hover:bg-pink-50 hover:text-pink-600"
-                          role="menuitem"
+                          className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-slate-700 transition hover:bg-pink-50 hover:text-pink-600"
                         >
-                          <FaSignOutAlt className="text-pink-500" />
-                          Logout
+                          <FaSignOutAlt className="text-pink-500" /> Logout
                         </button>
                       </div>
                     </div>
@@ -214,16 +205,124 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
                 </div>
               </div>
             ) : (
+              <div className="hidden sm:flex items-center gap-3 text-sm font-semibold">
+                <button
+                  type="button"
+                  onClick={onLoginOpen}
+                  className="text-slate-700 hover:text-pink-600 transition"
+                >
+                  Login
+                </button>
+                <button
+                  type="button"
+                  onClick={onLoginOpen}
+                  className="rounded-full bg-pink-500 px-4 py-2 text-white transition hover:bg-pink-600 shadow-sm shadow-pink-200"
+                >
+                  Register
+                </button>
+              </div>
+            )}
+
+            <div className="flex items-center gap-4 text-slate-500">
+              {/* Wishlist */}
+              <Link
+                href="/wishlist"
+                title="Wishlist"
+                className="relative hover:text-pink-600 text-pink-500 transition cursor-pointer"
+                aria-label="Wishlist"
+              >
+                <FiHeart className="text-[1.4rem]" />
+                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-pink-500 text-[10px] font-bold text-white shadow-sm">
+                  {wishlistCount}
+                </span>
+              </Link>
+
+              {/* Cart */}
               <button
                 type="button"
-                onClick={onLoginOpen}
-                className="inline-flex items-center gap-2 rounded-full bg-pink-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-pink-200 transition hover:bg-pink-600"
+                title="Cart"
+                onClick={onCartOpen}
+                className="relative hover:text-pink-600 text-pink-500 transition cursor-pointer"
+                aria-label="Open cart"
               >
-                <FaUserCircle className="text-lg" />
-                Login
+                <FiShoppingCart className="text-[1.4rem]" />
+                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-pink-500 text-[10px] font-bold text-white shadow-sm">
+                  {itemCount}
+                </span>
               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Navbar */}
+      <div className="hidden lg:block border-b border-pink-100 bg-white">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-3 py-3 sm:px-6 lg:px-8 text-sm font-semibold text-slate-700">
+          <div className="flex items-center gap-8">
+            {/* Categories */}
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              className={`flex items-center gap-2 transition font-semibold ${
+                isSidebarOpen
+                  ? "text-pink-600"
+                  : "hover:text-pink-600 text-slate-700"
+              }`}
+            >
+              <FaBars className="text-lg" />
+              <span>SHOP BY CATEGORIES</span>
+              <FaChevronDown
+                className={`text-xs ml-1 transition-transform duration-200 ${
+                  isSidebarOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {/* Nav Links — hidden when sidebar is open */}
+            {!isSidebarOpen && (
+              <div className="flex items-center gap-6">
+                {[
+                  "Home",
+                  "Fashion",
+                  "Electronics",
+                  "Bags",
+                  "Footwear",
+                  "Groceries",
+                  "Beauty",
+                  "Wellness",
+                  "Jewellery",
+                ].map((link) => (
+                  <div key={link} className="relative group cursor-pointer">
+                    <span className="hover:text-pink-600 transition py-4 inline-block">
+                      {link}
+                    </span>
+                    {link !== "Home" && (
+                      <div className="absolute left-0 top-full hidden w-32 flex-col bg-white shadow-lg border border-slate-100 rounded-md py-2 group-hover:flex">
+                        {["Men", "Women", "Kids", "Girls", "Boys"].map(
+                          (subLink) => (
+                            <span
+                              key={subLink}
+                              className="px-4 py-2 hover:text-pink-600 hover:bg-slate-50 transition"
+                            >
+                              {subLink}
+                            </span>
+                          ),
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
+
+          {/* Delivery Note — hidden when sidebar is open */}
+          {!isSidebarOpen && (
+            <div className="flex items-center gap-2 whitespace-nowrap text-slate-600">
+              <FaRocket className="text-lg shrink-0" />
+              <span>Free International Delivery</span>
+            </div>
+          )}
         </div>
       </div>
     </header>

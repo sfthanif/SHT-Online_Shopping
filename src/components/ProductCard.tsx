@@ -75,10 +75,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </div>
 
         <div className="mt-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-amber-200 border" />
-            <div className="h-3 w-3 rounded-full bg-rose-200 border" />
-            <div className="h-3 w-3 rounded-full bg-slate-800 border" />
+          <div className="flex items-center gap-1">
+            <div className="h-4 w-4 rounded-full bg-amber-200 border" />
+            <div className="h-4 w-4 rounded-full bg-rose-200 border" />
+            <div className="h-4 w-4 rounded-full bg-slate-800 border" />
           </div>
 
           <button

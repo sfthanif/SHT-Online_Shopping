@@ -66,6 +66,30 @@ select {
   backdrop-filter: blur(16px);
 }
 
+/* Exact 600px visibility helpers */
+.only-under-600 {
+  display: block;
+}
+
+.only-under-600-grid {
+  display: grid;
+}
+
+.only-from-600 {
+  display: none;
+}
+
+@media (min-width: 600px) {
+  .only-under-600,
+  .only-under-600-grid {
+    display: none !important;
+  }
+
+  .only-from-600 {
+    display: block !important;
+  }
+}
+
 /* Responsive product grid with fixed 5px gap and explicit column counts by width */
 .product-grid {
   display: grid;

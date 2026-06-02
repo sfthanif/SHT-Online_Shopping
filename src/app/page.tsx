@@ -1,24 +1,47 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import ProductCard from "@/components/ProductCard";
+import HeroSlider from "@/components/HeroSlider";
+import CategorySidebar from "@/components/CategorySidebar";
 import { useCatalog } from "@/contexts/CatalogContext";
 import { useSearch } from "@/contexts/SearchContext";
+import { useSidebar } from "@/contexts/SidebarContext";
 
 export default function HomePage() {
   const { products } = useCatalog();
   const { query, clearQuery } = useSearch();
+  const { isOpen } = useSidebar();
+  const heroRef = useRef<HTMLElement>(null);
+
+  // Scroll hero section into view whenever the sidebar opens
+  useEffect(() => {
+    if (isOpen) {
+      heroRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [isOpen]);
 
   const filteredProducts = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     if (!normalized) return products;
-    return products.filter((product) =>
-      product.name.toLowerCase().includes(normalized),
-    );
+    return products.filter((product) => {
+      const category = product.category?.toLowerCase() ?? "";
+      return (
+        product.name.toLowerCase().includes(normalized) ||
+        category.includes(normalized)
+      );
+    });
   }, [products, query]);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6">
+      {/* Hero: sidebar (toggleable) + slider side by side */}
+      <section ref={heroRef} className="flex h-55 sm:h-75 lg:h-105 overflow-hidden rounded-xl shadow-sm border border-pink-100">
+        {isOpen && <CategorySidebar />}
+        <HeroSlider />
+      </section>
+
+      {/* Products */}
       <section className="space-y-6" id="products">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -43,7 +66,7 @@ export default function HomePage() {
                 </button>
               </>
             ) : (
-              "Search from the navbar to instantly filter products by name."
+              "Search from the navbar to instantly filter products by name or category."
             )}
           </p>
         </div>
@@ -51,7 +74,7 @@ export default function HomePage() {
         {filteredProducts.length === 0 ? (
           <div className="premium-card rounded-[1.75rem] p-10 text-center">
             <p className="text-lg font-semibold text-slate-900">
-              No handbags match your search.
+              No products match your search.
             </p>
             <button
               onClick={clearQuery}
@@ -66,7 +89,6 @@ export default function HomePage() {
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-        )}
         )}
       </section>
     </div>
