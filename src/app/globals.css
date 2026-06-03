@@ -120,3 +120,59 @@ select {
     grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   }
 }
+
+/* ===== CLICK WAVE EFFECT ===== */
+.click-wave {
+  position: fixed;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  margin-top: -8px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, #ec4899 72%, white 28%);
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.9;
+  box-shadow:
+    0 0 0 0 rgba(236, 72, 153, 0.45),
+    0 0 0 0 rgba(219, 39, 119, 0.35);
+  animation: clickWaveExpand 0.7s ease-out forwards;
+}
+
+@keyframes clickWaveExpand {
+  0% {
+    transform: scale(0.25);
+    opacity: 0.95;
+  }
+  70% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+    box-shadow:
+      0 0 0 14px rgba(236, 72, 153, 0),
+      0 0 0 26px rgba(219, 39, 119, 0);
+  }
+}
+
+.click-heart {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10000;
+  font-size: 12px;
+  line-height: 1;
+  animation: heartFloat 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes heartFloat {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(0.3) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--hx, -15px), var(--hy, -40px)) scale(0.5) rotate(var(--hr, 20deg));
+  }
+}

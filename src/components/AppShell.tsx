@@ -29,6 +29,37 @@ const AppShell = ({ children }: { children: ReactNode }) => {
     return () => window.removeEventListener("resize", updateViewportState);
   }, []);
 
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      const wave = document.createElement("span");
+      wave.className = "click-wave";
+      wave.style.left = event.clientX + "px";
+      wave.style.top = event.clientY + "px";
+      document.body.appendChild(wave);
+      wave.addEventListener("animationend", () => {
+        wave.remove();
+      }, { once: true });
+
+      for (let i = 0; i < 2; i++) {
+        const heart = document.createElement("span");
+        heart.className = "click-heart";
+        heart.textContent = "\u2665";
+        heart.style.left = (event.clientX + (Math.random() - 0.5) * 10) + "px";
+        heart.style.top = (event.clientY + (Math.random() - 0.5) * 10) + "px";
+        const dx = (Math.random() - 0.5) * 16;
+        const dy = -(12 + Math.random() * 13);
+        heart.style.setProperty("--hx", dx + "px");
+        heart.style.setProperty("--hy", dy + "px");
+        heart.style.setProperty("--hr", (Math.random() - 0.5) * 40 + "deg");
+        heart.style.color = ["#ec4899", "#db2777", "#f472b6"][i];
+        document.body.appendChild(heart);
+        setTimeout(() => { if (heart.parentNode) heart.remove(); }, 1000);
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown, { passive: true });
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, []);
+
   return (
     <AuthProvider>
       <CatalogProvider>
