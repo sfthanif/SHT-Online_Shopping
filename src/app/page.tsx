@@ -1,25 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import ProductCard from "@/components/ProductCard";
 import HeroSlider from "@/components/HeroSlider";
-import CategorySidebar from "@/components/CategorySidebar";
 import { useCatalog } from "@/contexts/CatalogContext";
 import { useSearch } from "@/contexts/SearchContext";
-import { useSidebar } from "@/contexts/SidebarContext";
 
 export default function HomePage() {
   const { products } = useCatalog();
   const { query, clearQuery } = useSearch();
-  const { isOpen } = useSidebar();
-  const heroRef = useRef<HTMLElement>(null);
-
-  // Scroll hero section into view whenever the sidebar opens
-  useEffect(() => {
-    if (isOpen) {
-      heroRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [isOpen]);
 
   const filteredProducts = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -35,9 +24,8 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6">
-      {/* Hero: sidebar (toggleable) + slider side by side */}
-      <section ref={heroRef} className="flex h-55 sm:h-75 lg:h-105 overflow-hidden rounded-xl shadow-sm border border-pink-100">
-        {isOpen && <CategorySidebar />}
+      {/* Hero slider */}
+      <section className="flex h-48 sm:h-64 md:h-80 lg:h-96 xl:h-120 overflow-hidden rounded-xl shadow-sm border border-pink-100">
         <HeroSlider />
       </section>
 
@@ -49,7 +37,7 @@ export default function HomePage() {
               Curated collection
             </p>
             <h2 className="mt-2 text-3xl font-semibold text-slate-900">
-              Premium handbags
+              Trending Products
             </h2>
           </div>
           <p className="max-w-xl text-sm text-slate-500">

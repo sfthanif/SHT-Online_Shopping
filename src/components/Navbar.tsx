@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -19,8 +19,9 @@ import {
   FaRocket,
 } from "react-icons/fa";
 import { FiShoppingCart, FiHeart } from "react-icons/fi";
+import CategorySidebar from "@/components/CategorySidebar";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCatalog } from "@/contexts/CatalogContext";
+
 import { useCart } from "@/contexts/CartContext";
 import { useSearch } from "@/contexts/SearchContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -34,14 +35,32 @@ type NavbarProps = {
 const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
   const { toggle: toggleSidebar, isOpen: isSidebarOpen } = useSidebar();
   const router = useRouter();
-  const { products } = useCatalog();
+
   const { isLoggedIn, logout } = useAuth();
   const { itemCount } = useCart();
   const { query, setQuery } = useSearch();
   const { wishlistCount } = useWishlist();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hideExtras, setHideExtras] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const handleScroll = () => {
+      const y = window.scrollY;
+      if (y < 60) {
+        setHideExtras(false);
+      } else if (y > lastY + 5) {
+        setHideExtras(true);
+      } else if (y < lastY - 5) {
+        setHideExtras(false);
+      }
+      lastY = y;
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -85,33 +104,33 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
     fileInput.click();
   };
 
-  const categoryItems = useMemo(() => {
-    const uniqueCategories = Array.from(
-      new Set(products.map((product) => product.category).filter(Boolean)),
-    ) as string[];
-    return ["All", ...uniqueCategories];
-  }, [products]);
-
-  const normalizedQuery = query.trim().toLowerCase();
-
   return (
-    <header className="only-from-600 fixed top-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-xl shadow-sm">
-      {/* Top Navbar */}
-      <div className="border-b border-pink-100 bg-slate-50 text-xs text-slate-600 hidden md:block">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-3 py-2 sm:px-6 lg:px-8">
-          <span>Get up to 50% off new season styles, limited time only</span>
-          <div className="flex items-center gap-4 font-semibold">
-            <Link href="#" className="hover:text-pink-600 transition">
-              Help Center
-            </Link>
-            <Link href="#" className="hover:text-pink-600 transition">
-              Order Tracking
-            </Link>
+    <header className="hidden sm:block fixed top-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-xl shadow-sm">
+      {/* Top Navbar — collapses on scroll down */}
+      <div
+        className="hidden md:block"
+        style={{
+          maxHeight: hideExtras ? "0px" : "60px",
+          overflow: "hidden",
+          transition: "max-height 0.3s ease-in-out",
+        }}
+      >
+        <div className="border-b border-pink-100 bg-slate-50 text-xs text-slate-600">
+          <div className="flex w-full items-center justify-between px-4 py-2 sm:px-6 lg:px-8">
+            <span>Get up to 50% off new season styles, limited time only</span>
+            <div className="flex items-center gap-4 font-semibold">
+              <Link href="#" className="hover:text-pink-600 transition">
+                Help Center
+              </Link>
+              <Link href="#" className="hover:text-pink-600 transition">
+                Order Tracking
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-7xl border-b border-pink-100/80 px-3 py-2.5 sm:px-6 lg:px-8">
+      <div className="w-full border-b border-pink-100/80 px-4 py-2.5 sm:px-6 lg:px-8">
         <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-6">
           {/* Logo */}
           <div className="flex items-center">
@@ -255,76 +274,84 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
         </div>
       </div>
 
-      {/* Bottom Navbar */}
-      <div className="hidden lg:block border-b border-pink-100 bg-white">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-3 py-3 sm:px-6 lg:px-8 text-sm font-semibold text-slate-700">
-          <div className="flex items-center gap-8">
-            {/* Categories */}
-            <button
-              type="button"
-              onClick={toggleSidebar}
-              className={`flex items-center gap-2 transition font-semibold ${
-                isSidebarOpen
-                  ? "text-pink-600"
-                  : "hover:text-pink-600 text-slate-700"
+      {/* Bottom Navbar — collapses on scroll down */}
+      <div
+        className="hidden lg:block"
+        style={{
+          maxHeight: hideExtras ? "0px" : "80px",
+          overflow: "hidden",
+          transition: "max-height 0.3s ease-in-out",
+        }}
+      >
+      <div className="border-b border-pink-100 bg-white">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-3 sm:px-6 lg:px-8 text-sm font-semibold text-slate-700">
+          {/* Left: Categories toggle */}
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            className={`flex shrink-0 items-center gap-2 transition font-semibold ${
+              isSidebarOpen
+                ? "text-pink-600"
+                : "hover:text-pink-600 text-slate-700"
+            }`}
+          >
+            <FaBars className="text-lg" />
+            <span>SHOP BY CATEGORIES</span>
+            <FaChevronDown
+              className={`text-xs ml-1 transition-transform duration-300 ${
+                isSidebarOpen ? "rotate-180" : ""
               }`}
-            >
-              <FaBars className="text-lg" />
-              <span>SHOP BY CATEGORIES</span>
-              <FaChevronDown
-                className={`text-xs ml-1 transition-transform duration-200 ${
-                  isSidebarOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
+            />
+          </button>
 
-            {/* Nav Links — hidden when sidebar is open */}
-            {!isSidebarOpen && (
-              <div className="flex items-center gap-6">
-                {[
-                  "Home",
-                  "Fashion",
-                  "Electronics",
-                  "Bags",
-                  "Footwear",
-                  "Groceries",
-                  "Beauty",
-                  "Wellness",
-                  "Jewellery",
-                ].map((link) => (
-                  <div key={link} className="relative group cursor-pointer">
-                    <span className="hover:text-pink-600 transition py-4 inline-block">
-                      {link}
-                    </span>
-                    {link !== "Home" && (
-                      <div className="absolute left-0 top-full hidden w-32 flex-col bg-white shadow-lg border border-slate-100 rounded-md py-2 group-hover:flex">
-                        {["Men", "Women", "Kids", "Girls", "Boys"].map(
-                          (subLink) => (
-                            <span
-                              key={subLink}
-                              className="px-4 py-2 hover:text-pink-600 hover:bg-slate-50 transition"
-                            >
-                              {subLink}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    )}
+          {/* Center: Nav Links */}
+          <div className="flex items-center justify-center gap-6 overflow-x-auto scrollbar-none">
+            {[
+              "Home",
+              "Fashion",
+              "Electronics",
+              "Bags",
+              "Footwear",
+              "Groceries",
+              "Beauty",
+              "Wellness",
+              "Jewellery",
+            ].map((link) => (
+              <div key={link} className="relative group cursor-pointer shrink-0">
+                <span className="hover:text-pink-600 transition py-3 inline-block">
+                  {link}
+                </span>
+                {link !== "Home" && (
+                  <div className="absolute left-0 top-full hidden w-32 flex-col bg-white shadow-lg border border-slate-100 rounded-md py-2 group-hover:flex z-50">
+                    {["Men", "Women", "Kids", "Girls", "Boys"].map((subLink) => (
+                      <span
+                        key={subLink}
+                        className="px-4 py-2 hover:text-pink-600 hover:bg-slate-50 transition"
+                      >
+                        {subLink}
+                      </span>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
-            )}
+            ))}
           </div>
 
-          {/* Delivery Note — hidden when sidebar is open */}
-          {!isSidebarOpen && (
-            <div className="flex items-center gap-2 whitespace-nowrap text-slate-600">
-              <FaRocket className="text-lg shrink-0" />
-              <span>Free International Delivery</span>
-            </div>
-          )}
+          {/* Right: Delivery Note */}
+          <div className="flex items-center gap-2 whitespace-nowrap text-slate-600 shrink-0">
+            <FaRocket className="text-lg shrink-0" />
+            <span>Free International Delivery</span>
+          </div>
         </div>
       </div>
+      </div>
+
+      {/* Category sidebar — slides in from left below the full navbar */}
+      {isSidebarOpen && (
+        <div className="absolute top-full left-0 z-50 sidebar-slide-in">
+          <CategorySidebar />
+        </div>
+      )}
     </header>
   );
 };

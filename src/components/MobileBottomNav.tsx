@@ -69,7 +69,7 @@ const MobileBottomNav = ({
     <>
       {/* Fixed Top Search Bar */}
       <div
-        className="only-under-600"
+        className="only-under-sm"
         style={{
           position: "fixed",
           top: 0,
@@ -191,7 +191,7 @@ const MobileBottomNav = ({
 
       {/* Fixed Bottom Navigation Bar */}
       <div
-        className="only-under-600-grid"
+        className="only-under-sm-grid"
         style={{
           position: "fixed",
           bottom: 0,

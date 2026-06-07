@@ -66,59 +66,102 @@ select {
   backdrop-filter: blur(16px);
 }
 
-/* Exact 600px visibility helpers */
-.only-under-600 {
+/* sm (640px) breakpoint visibility helpers */
+.only-under-sm {
   display: block;
 }
 
-.only-under-600-grid {
+.only-under-sm-grid {
   display: grid;
 }
 
-.only-from-600 {
+.only-from-sm {
   display: none;
 }
 
-@media (min-width: 600px) {
-  .only-under-600,
-  .only-under-600-grid {
+@media (min-width: 640px) {
+  .only-under-sm,
+  .only-under-sm-grid {
     display: none !important;
   }
 
-  .only-from-600 {
+  .only-from-sm {
     display: block !important;
   }
 }
 
-/* Responsive product grid with fixed 5px gap and explicit column counts by width */
+/* Responsive product grid — follows standard Tailwind breakpoints */
 .product-grid {
   display: grid;
   gap: 5px;
-  grid-template-columns: repeat(2, minmax(190px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-@media (min-width: 600px) and (max-width: 799.98px) {
+/* sm: 640px — 3 columns */
+@media (min-width: 640px) and (max-width: 767.98px) {
   .product-grid {
-    grid-template-columns: repeat(3, minmax(190px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 800px) and (max-width: 999.98px) {
+/* md: 768px — 4 columns */
+@media (min-width: 768px) and (max-width: 1023.98px) {
   .product-grid {
-    grid-template-columns: repeat(4, minmax(190px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 1000px) and (max-width: 1199.98px) {
+/* lg: 1024px — 5 columns */
+@media (min-width: 1024px) and (max-width: 1279.98px) {
   .product-grid {
-    grid-template-columns: repeat(5, minmax(190px, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 1200px) {
+/* xl: 1280px — auto-fit */
+@media (min-width: 1280px) {
   .product-grid {
     grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   }
+}
+
+/* ===== SIDEBAR SLIDE-IN ANIMATION ===== */
+@keyframes sidebar-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.sidebar-slide-in {
+  animation: sidebar-slide-in 0.25s ease-out forwards;
+}
+
+/* Hide scrollbar track but keep scrollability */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #e9d5e9 transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #e9d5e9;
+  border-radius: 2px;
 }
 
 /* ===== CLICK WAVE EFFECT ===== */

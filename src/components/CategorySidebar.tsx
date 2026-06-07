@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FaPlus, FaMinus, FaTimes } from "react-icons/fa";
+import { FaPlus, FaMinus } from "react-icons/fa";
 import { useSidebar } from "@/contexts/SidebarContext";
 import { useSearch } from "@/contexts/SearchContext";
 
@@ -29,30 +29,16 @@ const CategorySidebar = () => {
 
   const handleSelect = (value: string) => {
     setQuery(value === "All" ? "" : value);
+    close();
   };
 
   const isActive = (name: string) =>
     query.trim().toLowerCase() === name.toLowerCase();
 
   return (
-    <aside className="w-52 shrink-0 flex flex-col overflow-hidden bg-white border-r border-slate-200">
-      {/* Header — matches reference image */}
-      <div className="flex items-center justify-between bg-[#2c3e6e] px-4 py-3">
-        <span className="text-sm font-bold text-white tracking-wide">
-          Shop By Categories
-        </span>
-        <button
-          type="button"
-          onClick={close}
-          aria-label="Close sidebar"
-          className="text-white/70 transition hover:text-white"
-        >
-          <FaTimes className="text-sm" />
-        </button>
-      </div>
-
-      {/* Scrollable category list */}
-      <nav className="flex-1 overflow-y-auto">
+    <aside className="w-72 shrink-0 flex flex-col bg-white border-r border-slate-200 shadow-2xl max-h-[calc(100vh-187px)]">
+      {/* Category list — scrollable */}
+      <nav className="flex-1 overflow-y-auto sidebar-scrollbar">
         {categories.map((cat) => (
           <div key={cat.name} className="border-b border-slate-100">
             <div className={`flex items-center justify-between px-4 py-2.5 ${isActive(cat.name) ? "bg-slate-50" : "hover:bg-slate-50"}`}>

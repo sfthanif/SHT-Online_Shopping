@@ -22,7 +22,7 @@ const AppShell = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const updateViewportState = () => {
-      setShowMobileBars(window.innerWidth < 600);
+      setShowMobileBars(window.innerWidth < 640);
     };
     updateViewportState();
     window.addEventListener("resize", updateViewportState);
@@ -73,12 +73,13 @@ const AppShell = ({ children }: { children: ReactNode }) => {
                     onLoginOpen={() => setIsLoginOpen(true)}
                   />
                   {/*
-                    Navbar heights:
-                      600-768px  : middle bar only     ≈  77px → pt-20
-                      768-1024px : top + middle        ≈ 110px → md:pt-30
-                      1024px+    : top+middle+bottom   ≈ 187px → lg:pt-48
+                    Navbar heights (standard Tailwind breakpoints):
+                      < sm  (< 640px) : mobile nav only  → pt-20  (mobile top search bar)
+                      sm–md (640–768px): middle bar only  ≈  77px → sm:pt-20
+                      md–lg (768–1024px): top + middle   ≈ 110px → md:pt-28
+                      lg+  (1024px+)  : all 3 bars       ≈ 187px → lg:pt-48
                   */}
-                  <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 md:pt-30 lg:pt-48 pb-24 lg:pb-16">
+                  <main className="w-full px-4 sm:px-6 lg:px-8 pt-20 md:pt-28 lg:pt-48 pb-24 sm:pb-6 lg:pb-16">
                     {children}
                   </main>
                   <Footer />
