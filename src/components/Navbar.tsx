@@ -6,14 +6,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   FaCamera,
-  FaHeart,
-  FaRegHeart,
   FaSearch,
-  FaShoppingCart,
   FaTimes,
   FaSignOutAlt,
   FaUserCircle,
-  FaExchangeAlt,
   FaBars,
   FaChevronDown,
   FaRocket,
@@ -33,7 +29,7 @@ type NavbarProps = {
 };
 
 const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
-  const { toggle: toggleSidebar, isOpen: isSidebarOpen } = useSidebar();
+  const { toggle: toggleSidebar, isOpen: isSidebarOpen, close: closeSidebar } = useSidebar();
   const router = useRouter();
 
   const { isLoggedIn, logout } = useAuth();
@@ -44,23 +40,34 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
   const [hideExtras, setHideExtras] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
-    let lastY = window.scrollY;
+    const getScrollY = () => window.scrollY || document.documentElement.scrollTop || 0;
+    lastScrollY.current = getScrollY();
+
     const handleScroll = () => {
-      const y = window.scrollY;
-      if (y < 60) {
+      const currentY = getScrollY();
+
+      closeSidebar();
+
+      if (currentY <= 10) {
         setHideExtras(false);
-      } else if (y > lastY + 5) {
+        document.documentElement.classList.remove("nav-compact");
+      } else if (currentY > lastScrollY.current + 2) {
         setHideExtras(true);
-      } else if (y < lastY - 5) {
+        document.documentElement.classList.add("nav-compact");
+      } else if (currentY < lastScrollY.current - 2) {
         setHideExtras(false);
+        document.documentElement.classList.remove("nav-compact");
       }
-      lastY = y;
+
+      lastScrollY.current = currentY;
     };
+
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [closeSidebar]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -105,14 +112,19 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
   };
 
   return (
-    <header className="hidden sm:block fixed top-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-xl shadow-sm">
+    <>
+    <header
+      className="hidden sm:block fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl transition-shadow duration-300"
+      style={{ boxShadow: hideExtras ? "0 2px 16px 0 rgba(236,72,153,0.10), 0 1px 4px 0 rgba(0,0,0,0.06)" : "0 1px 4px 0 rgba(0,0,0,0.04)" }}
+    >
       {/* Top Navbar — collapses on scroll down */}
       <div
         className="hidden md:block"
         style={{
           maxHeight: hideExtras ? "0px" : "60px",
+          opacity: hideExtras ? 0 : 1,
           overflow: "hidden",
-          transition: "max-height 0.3s ease-in-out",
+          transition: "max-height 0.35s ease-in-out, opacity 0.25s ease-in-out",
         }}
       >
         <div className="border-b border-pink-100 bg-slate-50 text-xs text-slate-600">
@@ -185,12 +197,12 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
                   <button
                     type="button"
                     onClick={() => setMenuOpen((current) => !current)}
-                    className="flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-pink-600 transition"
+                    className="flex items-center justify-center text-pink-500 hover:text-pink-600 transition"
                     aria-label="Open profile menu"
                     aria-haspopup="menu"
                     aria-expanded={menuOpen}
                   >
-                    <span>My Account</span>
+                    <FaUserCircle className="text-[1.6rem]" />
                   </button>
 
                   {menuOpen && (
@@ -243,32 +255,55 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
             )}
 
             <div className="flex items-center gap-4 text-slate-500">
+
               {/* Wishlist */}
-              <Link
-                href="/wishlist"
-                title="Wishlist"
-                className="relative hover:text-pink-600 text-pink-500 transition cursor-pointer"
-                aria-label="Wishlist"
-              >
-                <FiHeart className="text-[1.4rem]" />
-                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-pink-500 text-[10px] font-bold text-white shadow-sm">
-                  {wishlistCount}
-                </span>
-              </Link>
+              <div className="group relative">
+                {/* Tooltip */}
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-3 -translate-x-1/2">
+                  <div className="relative opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                    <div className="whitespace-nowrap rounded-full bg-pink-500 px-3 py-1.5 text-xs font-semibold text-white shadow-lg">
+                      Wishlist
+                    </div>
+                    {/* Arrow pointing down */}
+                    <div className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 h-2.5 w-2.5 rotate-45 bg-pink-500" />
+                  </div>
+                </div>
+                <Link
+                  href="/wishlist"
+                  className="relative block hover:text-pink-600 text-pink-500 transition cursor-pointer"
+                  aria-label="Wishlist"
+                >
+                  <FiHeart className="text-[1.4rem]" />
+                  <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-pink-500 text-[10px] font-bold text-white shadow-sm">
+                    {wishlistCount}
+                  </span>
+                </Link>
+              </div>
 
               {/* Cart */}
-              <button
-                type="button"
-                title="Cart"
-                onClick={onCartOpen}
-                className="relative hover:text-pink-600 text-pink-500 transition cursor-pointer"
-                aria-label="Open cart"
-              >
-                <FiShoppingCart className="text-[1.4rem]" />
-                <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-pink-500 text-[10px] font-bold text-white shadow-sm">
-                  {itemCount}
-                </span>
-              </button>
+              <div className="group relative">
+                {/* Tooltip */}
+                <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-3 -translate-x-1/2">
+                  <div className="relative opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                    <div className="whitespace-nowrap rounded-full bg-pink-500 px-3 py-1.5 text-xs font-semibold text-white shadow-lg">
+                      Cart
+                    </div>
+                    <div className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 h-2.5 w-2.5 rotate-45 bg-pink-500" />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={onCartOpen}
+                  className="relative hover:text-pink-600 text-pink-500 transition cursor-pointer"
+                  aria-label="Open cart"
+                >
+                  <FiShoppingCart className="text-[1.4rem]" />
+                  <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-pink-500 text-[10px] font-bold text-white shadow-sm">
+                    {itemCount}
+                  </span>
+                </button>
+              </div>
+
             </div>
           </div>
         </div>
@@ -279,8 +314,9 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
         className="hidden lg:block"
         style={{
           maxHeight: hideExtras ? "0px" : "80px",
+          opacity: hideExtras ? 0 : 1,
           overflow: "hidden",
-          transition: "max-height 0.3s ease-in-out",
+          transition: "max-height 0.35s ease-in-out, opacity 0.25s ease-in-out",
         }}
       >
       <div className="border-b border-pink-100 bg-white">
@@ -318,9 +354,12 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
               "Jewellery",
             ].map((link) => (
               <div key={link} className="relative group cursor-pointer shrink-0">
-                <span className="hover:text-pink-600 transition py-3 inline-block">
+                <Link
+                  href={link === "Home" ? "/" : "#"}
+                  className="hover:text-pink-600 transition py-3 inline-block"
+                >
                   {link}
-                </span>
+                </Link>
                 {link !== "Home" && (
                   <div className="absolute left-0 top-full hidden w-32 flex-col bg-white shadow-lg border border-slate-100 rounded-md py-2 group-hover:flex z-50">
                     {["Men", "Women", "Kids", "Girls", "Boys"].map((subLink) => (
@@ -353,6 +392,18 @@ const Navbar = ({ onCartOpen, onLoginOpen }: NavbarProps) => {
         </div>
       )}
     </header>
+
+    {/* Backdrop OUTSIDE the header so it's in the root stacking context.
+        z-39 = above all page content (z-auto) but below the navbar (z-40),
+        ensuring clicks on the banner / any content close the sidebar. */}
+    {isSidebarOpen && (
+      <div
+        className="fixed inset-0 z-39"
+        onClick={closeSidebar}
+        aria-hidden="true"
+      />
+    )}
+  </>
   );
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useCallback, useContext, useState } from "react";
 
 type SidebarCtx = {
   isOpen: boolean;
@@ -16,14 +16,10 @@ const SidebarContext = createContext<SidebarCtx>({
 
 export const SidebarProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const toggle = useCallback(() => setIsOpen((p) => !p), []);
+  const close = useCallback(() => setIsOpen(false), []);
   return (
-    <SidebarContext.Provider
-      value={{
-        isOpen,
-        toggle: () => setIsOpen((p) => !p),
-        close: () => setIsOpen(false),
-      }}
-    >
+    <SidebarContext.Provider value={{ isOpen, toggle, close }}>
       {children}
     </SidebarContext.Provider>
   );

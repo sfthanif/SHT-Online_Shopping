@@ -21,15 +21,20 @@ const CatalogContext = createContext<CatalogContextValue | undefined>(
   undefined,
 );
 
+const initialIds = new Set(initialProducts.map((p) => p.id));
+
 export const CatalogProvider = ({ children }: { children: ReactNode }) => {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  // Only user-added products (not in initialProducts) are persisted to localStorage.
+  // This ensures newly added source products always appear after a code update.
+  const [userAdded, setUserAdded] = useState<Product[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(CATALOG_KEY);
     if (stored) {
       try {
-        setProducts(JSON.parse(stored) as Product[]);
+        const parsed = JSON.parse(stored) as Product[];
+        setUserAdded(parsed.filter((p) => !initialIds.has(p.id)));
       } catch {
         window.localStorage.removeItem(CATALOG_KEY);
       }
@@ -39,15 +44,17 @@ export const CatalogProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (!hydrated) return;
-    window.localStorage.setItem(CATALOG_KEY, JSON.stringify(products));
-  }, [hydrated, products]);
+    window.localStorage.setItem(CATALOG_KEY, JSON.stringify(userAdded));
+  }, [hydrated, userAdded]);
+
+  const products = useMemo(() => [...initialProducts, ...userAdded], [userAdded]);
 
   const value = useMemo<CatalogContextValue>(
     () => ({
       products,
       addProduct: (product) => {
         const id = `${product.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`;
-        setProducts((current) => [...current, { ...product, id }]);
+        setUserAdded((current) => [...current, { ...product, id }]);
       },
     }),
     [products],

@@ -8,6 +8,7 @@ export type Product = {
   category?: string;
   description?: string;
   reviewCount?: number;
+  discount?: number;
 };
 
 export type CartItem = Product & {

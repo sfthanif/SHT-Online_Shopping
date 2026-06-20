@@ -13,6 +13,8 @@ import LoginModal from "@/components/LoginModal";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import MobileProfileMenu from "@/components/MobileProfileMenu";
 import Navbar from "@/components/Navbar";
+import ProductDetailModal from "@/components/ProductDetailModal";
+import { ProductDetailProvider } from "@/contexts/ProductDetailContext";
 
 const AppShell = ({ children }: { children: ReactNode }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -40,18 +42,20 @@ const AppShell = ({ children }: { children: ReactNode }) => {
         wave.remove();
       }, { once: true });
 
-      for (let i = 0; i < 2; i++) {
+      const heartColors = ["#ec4899", "#db2777", "#f472b6", "#f9a8d4", "#be185d"];
+      for (let i = 0; i < 4; i++) {
         const heart = document.createElement("span");
         heart.className = "click-heart";
         heart.textContent = "\u2665";
-        heart.style.left = (event.clientX + (Math.random() - 0.5) * 10) + "px";
-        heart.style.top = (event.clientY + (Math.random() - 0.5) * 10) + "px";
-        const dx = (Math.random() - 0.5) * 16;
-        const dy = -(12 + Math.random() * 13);
+        heart.style.left = (event.clientX + (Math.random() - 0.5) * 24) + "px";
+        heart.style.top  = (event.clientY + (Math.random() - 0.5) * 24) + "px";
+        const dx = (Math.random() - 0.5) * 40;
+        const dy = -(18 + Math.random() * 28);
         heart.style.setProperty("--hx", dx + "px");
         heart.style.setProperty("--hy", dy + "px");
-        heart.style.setProperty("--hr", (Math.random() - 0.5) * 40 + "deg");
-        heart.style.color = ["#ec4899", "#db2777", "#f472b6"][i];
+        heart.style.setProperty("--hr", (Math.random() - 0.5) * 60 + "deg");
+        heart.style.color = heartColors[i % heartColors.length];
+        heart.style.fontSize = (10 + Math.random() * 8) + "px";
         document.body.appendChild(heart);
         setTimeout(() => { if (heart.parentNode) heart.remove(); }, 1000);
       }
@@ -67,6 +71,7 @@ const AppShell = ({ children }: { children: ReactNode }) => {
           <CartProvider>
             <SearchProvider>
               <SidebarProvider>
+              <ProductDetailProvider>
                 <div className="min-h-screen text-slate-900">
                   <Navbar
                     onCartOpen={() => setIsCartOpen(true)}
@@ -79,10 +84,11 @@ const AppShell = ({ children }: { children: ReactNode }) => {
                       md–lg (768–1024px): top + middle   ≈ 110px → md:pt-28
                       lg+  (1024px+)  : all 3 bars       ≈ 187px → lg:pt-48
                   */}
-                  <main className="w-full px-4 sm:px-6 lg:px-8 pt-20 md:pt-28 lg:pt-48 pb-24 sm:pb-6 lg:pb-16">
+                  <main className="w-full px-4 sm:px-6 lg:px-8 pb-24 sm:pb-6 lg:pb-16 nav-aware-pt">
                     {children}
                   </main>
                   <Footer />
+                  <ProductDetailModal />
                   <CartDrawer
                     open={isCartOpen}
                     onClose={() => setIsCartOpen(false)}
@@ -108,6 +114,7 @@ const AppShell = ({ children }: { children: ReactNode }) => {
                     />
                   </div>
                 )}
+              </ProductDetailProvider>
               </SidebarProvider>
             </SearchProvider>
           </CartProvider>

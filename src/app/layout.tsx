@@ -16,9 +16,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "LuxeBags | SHT",
+  title: "SHT_Dream",
   description:
-    "Premium ladies handbags store built with Next.js 14 and Tailwind CSS.",
+    "Premium online shopping store built with Next.js 14 and Tailwind CSS.",
 };
 
 export default function RootLayout({

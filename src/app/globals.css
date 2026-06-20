@@ -15,7 +15,6 @@ html {
 html,
 body {
   width: 100%;
-  height: 100%;
   overflow-x: hidden;
 }
 
@@ -50,7 +49,17 @@ input,
 button,
 textarea,
 select {
-  font: inherit;
+  font-family: inherit;
+}
+
+/* Remove browser-native clear button on search inputs */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  display: none;
+  -webkit-appearance: none;
+}
+input[type="search"]::-ms-clear {
+  display: none;
 }
 
 /* Ensure fixed positioning works correctly */
@@ -90,39 +99,43 @@ select {
   }
 }
 
-/* Responsive product grid — follows standard Tailwind breakpoints */
+/* Responsive product grid — auto-fills columns at ~170px min card width */
 .product-grid {
   display: grid;
-  gap: 5px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
 }
 
-/* sm: 640px — 3 columns */
-@media (min-width: 640px) and (max-width: 767.98px) {
-  .product-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+/* ===== NAVBAR COMPACT / SCROLL-AWARE PADDING ===== */
+/*
+  Breakpoints (match Navbar.tsx):
+    < sm  (< 640px) : mobile nav only   → pt-20  (80px)
+    sm–md (640–768px): middle bar only  ≈ 77px  → pt-20
+    md–lg (768–1024px): top + middle   ≈ 110px → pt-28
+    lg+  (1024px+)  : all 3 bars       ≈ 187px → pt-48
+  When nav-compact (scrolled down):
+    sm–md: same ~77px   → pt-20
+    md–lg: ~77px        → pt-20
+    lg+  : ~77px        → pt-20
+*/
+.nav-aware-pt {
+  padding-top: 80px; /* mobile default */
+  transition: padding-top 0.35s ease-in-out;
+}
+@media (min-width: 640px) {
+  .nav-aware-pt { padding-top: 80px; }
+}
+@media (min-width: 768px) {
+  .nav-aware-pt { padding-top: 112px; }
+}
+@media (min-width: 1024px) {
+  .nav-aware-pt { padding-top: 192px; }
 }
 
-/* md: 768px — 4 columns */
-@media (min-width: 768px) and (max-width: 1023.98px) {
-  .product-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-/* lg: 1024px — 5 columns */
-@media (min-width: 1024px) and (max-width: 1279.98px) {
-  .product-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
-
-/* xl: 1280px — auto-fit */
-@media (min-width: 1280px) {
-  .product-grid {
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  }
+/* When scrolled: only middle bar is visible (~77px) */
+html.nav-compact .nav-aware-pt {
+  padding-top: 80px !important;
+  transition: padding-top 0.35s ease-in-out;
 }
 
 /* ===== SIDEBAR SLIDE-IN ANIMATION ===== */
