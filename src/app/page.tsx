@@ -13,6 +13,12 @@ import BlogSection from "@/components/BlogSection";
 import FeatureStrip from "@/components/FeatureStrip";
 import HeroSideCards from "@/components/HeroSideCards";
 import PromoSlider from "@/components/PromoSlider";
+import CategoryIconsStrip from "@/components/CategoryIconsStrip";
+import FlashSaleSection from "@/components/FlashSaleSection";
+import ShopByCategory from "@/components/ShopByCategory";
+import BrandCarousel from "@/components/BrandCarousel";
+import ShopTheLook from "@/components/ShopTheLook";
+import AppDownloadBanner from "@/components/AppDownloadBanner";
 
 function getPageNumbers(current: number, total: number): (number | "…")[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
@@ -26,7 +32,6 @@ export default function HomePage() {
   const { query, clearQuery } = useSearch();
   const [page, setPage] = useState(1);
 
-  /* Measure the actual rendered column count from the CSS auto-fill grid */
   const [cols, setCols] = useState(2);
   const [gridEl, setGridEl] = useState<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -73,29 +78,32 @@ export default function HomePage() {
 
   return (
     <div className="space-y-16">
-      {/* Hero slider — full width */}
+
+      {/* ── 1. Hero slider ── */}
       <section className="flex h-48 sm:h-64 md:h-80 lg:h-96 xl:h-120 overflow-hidden rounded-xl shadow-sm border border-pink-100">
         <HeroSlider />
       </section>
 
-      {/* Featured section below banner — 50/50 split */}
+      {/* ── 2. Category Icons Strip ── */}
+      {!query && <CategoryIconsStrip />}
+
+      {/* ── 3. Featured 50/50 split (promo slider + side cards) ── */}
       {!query && (
         <section className="-mt-10 grid grid-cols-2 gap-3 h-52 sm:h-60 md:h-64 lg:h-72">
-          {/* Left 50% — promo slider with arrows */}
           <PromoSlider />
-          {/* Right 50% — two stacked product cards */}
           <HeroSideCards products={products} />
         </section>
       )}
 
-      {/* Trending carousel — sorted by reviewCount descending */}
+      {/* ── 4. Flash Sale with countdown ── */}
+      {!query && <FlashSaleSection products={products} />}
+
+      {/* ── 5. Trending carousel ── */}
       {!query && <TrendingCarousel products={products} />}
 
-      {/* Free Shipping banner */}
+      {/* ── 6. Free Shipping banner ── */}
       {!query && (
-        <div
-          className="-mt-8 flex items-center justify-between gap-4 rounded-lg border border-pink-300/40 bg-pink-50/40 px-5 py-5 outline-none"
-        >
+        <div className="-mt-8 flex items-center justify-between gap-4 rounded-lg border border-pink-300/40 bg-pink-50/40 px-5 py-5 outline-none">
           <div className="flex items-center gap-3 shrink-0">
             <FaTruck className="text-2xl text-pink-500" />
             <span className="text-sm font-bold text-slate-800">Free Shipping</span>
@@ -107,32 +115,41 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Popular Products by category */}
+      {/* ── 7. Shop by Department grid ── */}
+      {!query && <ShopByCategory />}
+
+      {/* ── 8. Popular Products by category ── */}
       {!query && <PopularProducts products={products} />}
 
-      {/* Latest Products carousel */}
+      {/* ── 9. Featured Brands carousel ── */}
+      {!query && <BrandCarousel />}
+
+      {/* ── 10. Latest Products carousel ── */}
       {!query && <LatestProducts products={products} />}
 
-      {/* Blog section */}
+      {/* ── 11. Shop the Look editorial grid ── */}
+      {!query && <ShopTheLook />}
+
+      {/* ── 12. Blog section ── */}
       {!query && <BlogSection />}
 
-      {/* Feature strip */}
+      {/* ── 13. App Download Banner ── */}
+      {!query && <AppDownloadBanner />}
+
+      {/* ── 14. Feature strip ── */}
       {!query && <FeatureStrip />}
 
-      {/* Products */}
+      {/* ── 15. All Products grid ── */}
       <section className="space-y-6" id="products">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-semibold text-slate-900">
-              All Products
-            </h2>
+            <h2 className="text-3xl font-semibold text-slate-900">All Products</h2>
           </div>
           <p className="max-w-xl text-sm text-slate-500">
             {query ? (
               <>
                 Showing {filteredProducts.length} result
-                {filteredProducts.length === 1 ? "" : "s"} for &quot;{query}
-                &quot;.
+                {filteredProducts.length === 1 ? "" : "s"} for &quot;{query}&quot;.
                 <button
                   onClick={clearQuery}
                   className="ml-2 font-semibold text-pink-600 hover:text-pink-700"
@@ -148,9 +165,7 @@ export default function HomePage() {
 
         {filteredProducts.length === 0 ? (
           <div className="premium-card rounded-[1.75rem] p-10 text-center">
-            <p className="text-lg font-semibold text-slate-900">
-              No products match your search.
-            </p>
+            <p className="text-lg font-semibold text-slate-900">No products match your search.</p>
             <button
               onClick={clearQuery}
               className="mt-4 rounded-full bg-pink-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-pink-600"
@@ -162,9 +177,7 @@ export default function HomePage() {
           <>
             {paginatedProducts.length === 0 ? (
               <div className="premium-card rounded-[1.75rem] p-10 text-center">
-                <p className="text-lg font-semibold text-slate-900">
-                  No product available on this page.
-                </p>
+                <p className="text-lg font-semibold text-slate-900">No product available on this page.</p>
                 <button
                   onClick={() => goTo(1)}
                   className="mt-4 rounded-full bg-pink-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-pink-600"
@@ -182,7 +195,6 @@ export default function HomePage() {
 
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 pt-4 pb-2">
-                {/* Prev */}
                 <button
                   onClick={() => goTo(page - 1)}
                   disabled={page === 1}
@@ -192,7 +204,6 @@ export default function HomePage() {
                   <FaChevronLeft className="text-xs" />
                 </button>
 
-                {/* Page numbers */}
                 {getPageNumbers(page, totalPages).map((n, i) =>
                   n === "…" ? (
                     <span
@@ -218,7 +229,6 @@ export default function HomePage() {
                   )
                 )}
 
-                {/* Next */}
                 <button
                   onClick={() => goTo(page + 1)}
                   disabled={page === totalPages}
