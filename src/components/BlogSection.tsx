@@ -1,26 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { FiClock } from "react-icons/fi";
-
-const makeBlogImage = (label: string, a: string, b: string) => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260">
-    <defs>
-      <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="${a}"/>
-        <stop offset="100%" stop-color="${b}"/>
-      </linearGradient>
-    </defs>
-    <rect width="400" height="260" fill="url(#g)"/>
-    <circle cx="320" cy="60" r="80" fill="rgba(255,255,255,0.1)"/>
-    <circle cx="60"  cy="200" r="55" fill="rgba(255,255,255,0.08)"/>
-    <rect x="60" y="70" width="280" height="120" rx="16" fill="rgba(255,255,255,0.15)"/>
-    <text x="200" y="148" font-family="sans-serif" font-size="18" font-weight="bold"
-      fill="rgba(255,255,255,0.7)" text-anchor="middle">${label}</text>
-  </svg>`;
-  return `data:image/svg+xml;base64,${btoa(svg)}`;
-};
 
 const posts = [
   {
@@ -29,7 +12,7 @@ const posts = [
     excerpt: "Discover the hottest styles and must-have pieces that are defining this year's fashion landscape across all age groups.",
     date: "5 April, 2025",
     category: "Fashion",
-    imgA: "#ec4899", imgB: "#f43f5e",
+    img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=240&fit=crop&q=80",
   },
   {
     id: 2,
@@ -37,7 +20,7 @@ const posts = [
     excerpt: "With hundreds of models available, picking the perfect phone can be overwhelming. Here's what really matters.",
     date: "12 April, 2025",
     category: "Electronics",
-    imgA: "#6366f1", imgB: "#3b82f6",
+    img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=240&fit=crop&q=80",
   },
   {
     id: 3,
@@ -45,7 +28,7 @@ const posts = [
     excerpt: "Experts share the step-by-step skincare routines that deliver real results, no matter your skin type.",
     date: "18 April, 2025",
     category: "Beauty",
-    imgA: "#f97316", imgB: "#fbbf24",
+    img: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&h=240&fit=crop&q=80",
   },
   {
     id: 4,
@@ -53,7 +36,7 @@ const posts = [
     excerpt: "Learn how to fill your cart with nutritious essentials without breaking the bank or spending hours in the store.",
     date: "25 April, 2025",
     category: "Grocery",
-    imgA: "#22c55e", imgB: "#16a34a",
+    img: "https://images.unsplash.com/photo-1576673442511-7e39b6545c87?w=400&h=240&fit=crop&q=80",
   },
   {
     id: 5,
@@ -61,7 +44,7 @@ const posts = [
     excerpt: "How footwear went from a functional necessity to a global cultural phenomenon worth billions of dollars.",
     date: "2 May, 2025",
     category: "Footwear",
-    imgA: "#8b5cf6", imgB: "#6d28d9",
+    img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=240&fit=crop&q=80",
   },
   {
     id: 6,
@@ -69,7 +52,7 @@ const posts = [
     excerpt: "Simple, science-backed habits that can help you feel better, sleep more soundly, and stay energised all day.",
     date: "10 May, 2025",
     category: "Wellness",
-    imgA: "#06b6d4", imgB: "#0284c7",
+    img: "https://images.unsplash.com/photo-1592432678016-e910b452f9a2?w=400&h=240&fit=crop&q=80",
   },
   {
     id: 7,
@@ -77,9 +60,19 @@ const posts = [
     excerpt: "From mini bags to oversized totes — we break down the bag trends dominating streets and social feeds right now.",
     date: "18 May, 2025",
     category: "Bags",
-    imgA: "#f472b6", imgB: "#db2777",
+    img: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=240&fit=crop&q=80",
   },
 ];
+
+const categoryColor: Record<string, string> = {
+  Fashion:     "bg-rose-500",
+  Electronics: "bg-blue-500",
+  Beauty:      "bg-purple-500",
+  Grocery:     "bg-emerald-500",
+  Footwear:    "bg-amber-500",
+  Wellness:    "bg-teal-500",
+  Bags:        "bg-pink-500",
+};
 
 const BlogSection = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -131,14 +124,18 @@ const BlogSection = () => {
   return (
     <section className="space-y-5">
       {/* Header */}
-      <div>
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-pink-500">Articles &amp; Tips</p>
-        <h2 className="mt-1 text-2xl font-semibold text-slate-900">From The Blog</h2>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-pink-500">Articles &amp; Tips</p>
+          <h2 className="mt-1 text-2xl font-semibold text-slate-900">From The Blog</h2>
+        </div>
+        <button type="button" className="rounded-full border border-pink-200 px-4 py-1.5 text-sm font-semibold text-pink-500 transition hover:bg-pink-50">
+          View All Posts
+        </button>
       </div>
 
       {/* Carousel */}
       <div className="relative group">
-        {/* Left arrow */}
         <button
           type="button"
           onClick={() => handleClick("left")}
@@ -146,12 +143,11 @@ const BlogSection = () => {
           onMouseLeave={stopHover}
           aria-label="Scroll left"
           style={{ left: 4 }}
-          className={`${arrowBase} ${!canLeft ? "!opacity-0 pointer-events-none" : ""}`}
+          className={`${arrowBase} ${!canLeft ? "opacity-0! pointer-events-none" : ""}`}
         >
           <FaChevronLeft className="text-sm" />
         </button>
 
-        {/* Right arrow */}
         <button
           type="button"
           onClick={() => handleClick("right")}
@@ -159,32 +155,35 @@ const BlogSection = () => {
           onMouseLeave={stopHover}
           aria-label="Scroll right"
           style={{ right: 4 }}
-          className={`${arrowBase} ${!canRight ? "!opacity-0 pointer-events-none" : ""}`}
+          className={`${arrowBase} ${!canRight ? "opacity-0! pointer-events-none" : ""}`}
         >
           <FaChevronRight className="text-sm" />
         </button>
 
-        {/* Edge fades */}
         {canLeft  && <div className="pointer-events-none absolute left-0  top-0 z-10 h-full w-14 bg-linear-to-r from-white/80 to-transparent" />}
         {canRight && <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-14 bg-linear-to-l from-white/80 to-transparent" />}
 
-        {/* Scrollable track */}
         <div ref={scrollRef} className="flex gap-4 overflow-x-auto scrollbar-none py-2 px-1">
           {posts.map((post) => (
             <article
               key={post.id}
               className="shrink-0 w-64 sm:w-72 flex flex-col rounded-xl overflow-hidden border border-slate-100 bg-white shadow-sm hover:shadow-md transition cursor-pointer group/card"
             >
-              {/* Image + date badge */}
+              {/* Real photo */}
               <div className="relative h-44 sm:h-48 overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={makeBlogImage(post.category, post.imgA, post.imgB)}
+                <Image
+                  src={post.img}
                   alt={post.title}
-                  className="w-full h-full object-cover transition duration-300 group-hover/card:scale-105"
+                  fill
+                  sizes="300px"
+                  className="object-cover transition duration-300 group-hover/card:scale-105"
                 />
+                {/* Category chip */}
+                <span className={`absolute top-3 left-3 ${categoryColor[post.category] ?? "bg-slate-600"} rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow`}>
+                  {post.category}
+                </span>
                 {/* Date badge */}
-                <span className="absolute bottom-3 right-3 flex items-center gap-1 rounded bg-rose-500 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow">
+                <span className="absolute bottom-3 right-3 flex items-center gap-1 rounded bg-white/90 backdrop-blur-sm px-2.5 py-1 text-[10px] font-bold text-slate-700 shadow">
                   <FiClock size={10} />
                   {post.date}
                 </span>
@@ -192,9 +191,6 @@ const BlogSection = () => {
 
               {/* Content */}
               <div className="flex flex-1 flex-col p-4 space-y-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-pink-500">
-                  {post.category}
-                </span>
                 <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 group-hover/card:text-pink-600 transition">
                   {post.title}
                 </h3>
